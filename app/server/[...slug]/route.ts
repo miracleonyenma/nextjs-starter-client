@@ -1,5 +1,3 @@
-// ./server/[...slug]/route.ts
-
 import { logger } from "@untools/logger";
 import { NextRequest } from "next/server";
 
@@ -20,11 +18,15 @@ const hopByHopHeaders = new Set([
   "upgrade",
 ]);
 
-// Helper function to forward headers while excluding hop-by-hop headers
+// Additional problematic headers that might cause encoding issues
+const problematicHeaders = new Set(["content-encoding", "content-length"]);
+
+// Helper function to forward headers while excluding problematic ones
 function filterAndForwardHeaders(headers: Headers) {
   const filteredHeaders: Record<string, string> = {};
   headers.forEach((value, key) => {
-    if (!hopByHopHeaders.has(key.toLowerCase())) {
+    const lowerKey = key.toLowerCase();
+    if (!hopByHopHeaders.has(lowerKey) && !problematicHeaders.has(lowerKey)) {
       filteredHeaders[key] = value;
     }
   });
@@ -39,11 +41,8 @@ async function handler(req: NextRequest) {
 
     // Get the path from the dynamic route parameter
     const path = req.nextUrl.pathname.replace("/server/", "");
-    // const path = IS_GRAPHQL
-    //   ? req.nextUrl.pathname.replace("/server/", "")
-    //   : req.nextUrl.pathname;
 
-    logger.log("🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 ~ path: ", path);
+    logger.log("🚀 ~ path: ", path);
 
     // Construct the full URL for the remote API or GraphQL endpoint
     const url =
@@ -51,60 +50,108 @@ async function handler(req: NextRequest) {
         ? new URL(GRAPHQL_API).toString()
         : new URL(path, API_URL + "/v1").toString();
 
-    logger.log(API_URL);
-    logger.log(url);
+    logger.log("🚀 ~ API_URL:", API_URL);
+    logger.log("🚀 ~ Target URL:", url);
 
     // Get query parameters
     const searchParams = req.nextUrl.searchParams;
     const queryString = searchParams.toString();
     const fullUrl = queryString ? `${url}?${queryString}` : url;
 
-    logger.log("🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 ~ fullUrl: ", fullUrl);
+    logger.log("🚀 ~ fullUrl: ", fullUrl);
+
+    // Clone the request to safely read its body
+    const requestClone = req.clone();
+
+    // Prepare headers with API key
+    const headers: Record<string, string> = {
+      ...filterAndForwardHeaders(req.headers),
+      "x-api-key": API_KEY || "",
+    };
+
+    // Process request body for POST, PUT, PATCH
+    let body;
+    if (["POST", "PUT", "PATCH"].includes(req.method)) {
+      const contentType = req.headers.get("content-type");
+
+      // Handle different content types appropriately
+      if (contentType?.includes("application/json")) {
+        const jsonData = await requestClone.json();
+        body = JSON.stringify(jsonData);
+        headers["content-type"] = "application/json";
+      } else {
+        body = await requestClone.text();
+      }
+    }
 
     // Prepare the fetch options
     const fetchOptions: RequestInit = {
       method: req.method,
-      headers: {
-        ...filterAndForwardHeaders(req.headers),
-        "x-api-key": API_KEY || "",
-      },
+      headers,
       // Only include body for methods that typically have one
-      ...(["POST", "PUT", "PATCH"].includes(req.method) && {
-        body: await req.text(),
-      }),
+      ...(["POST", "PUT", "PATCH"].includes(req.method) && { body }),
     };
 
-    logger.log(
-      "🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 ~ fetchOptions: ",
-      fetchOptions
-    );
+    logger.log("🚀 ~ fetchOptions: ", {
+      method: fetchOptions.method,
+      headers: fetchOptions.headers,
+      bodyLength: body ? body.length : 0,
+    });
 
     // Forward the request to the remote API
     const response = await fetch(fullUrl, fetchOptions);
 
-    // Get the response headers
+    logger.log("🚀 ~ response status:", response.status);
+    logger.log(
+      "🚀 ~ response headers:",
+      Object.fromEntries(response.headers.entries())
+    );
+
+    // Get the response content as text
+    const responseText = await response.text();
+    logger.log("🚀 ~ response size:", responseText.length);
+
+    // Filter response headers
     const responseHeaders: Record<string, string> = {};
     response.headers.forEach((value, key) => {
-      // Don't forward hop-by-hop headers in the response either
-      if (!hopByHopHeaders.has(key.toLowerCase())) {
+      const lowerKey = key.toLowerCase();
+      // Don't forward problematic headers in the response
+      if (!hopByHopHeaders.has(lowerKey) && !problematicHeaders.has(lowerKey)) {
         responseHeaders[key] = value;
       }
     });
 
+    // Set content type if not already set
+    if (!responseHeaders["content-type"]) {
+      if (IS_GRAPHQL) {
+        responseHeaders["content-type"] = "application/json";
+      } else {
+        // Try to infer content type or default to text/plain
+        responseHeaders["content-type"] =
+          response.headers.get("content-type") || "text/plain";
+      }
+    }
+
     // Create the response with the appropriate status and headers
-    return new Response(response.body, {
+    return new Response(responseText, {
       status: response.status,
       statusText: response.statusText,
       headers: responseHeaders,
     });
   } catch (error) {
     logger.error("Proxy error:", error);
-    return new Response((error as Error).message, {
-      status: 500,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Internal Server Error",
+        message: (error as Error).message,
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
 }
 
