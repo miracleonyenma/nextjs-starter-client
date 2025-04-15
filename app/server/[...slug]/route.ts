@@ -5,7 +5,7 @@ import { NextRequest } from "next/server";
 
 // Configure your remote API base URL
 const API_URL = process.env.NEXT_PUBLIC_BASE_API;
-const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
+const API_KEY = process.env.API_KEY;
 const GRAPHQL_API = process.env.NEXT_PUBLIC_GRAPHQL_API;
 
 // Define hop-by-hop headers that shouldn't be forwarded
@@ -22,9 +22,7 @@ const hopByHopHeaders = new Set([
 
 // Helper function to forward headers while excluding hop-by-hop headers
 function filterAndForwardHeaders(headers: Headers) {
-  const filteredHeaders: Record<string, string> = {
-    "x-api-key": API_KEY || "",
-  };
+  const filteredHeaders: Record<string, string> = {};
   headers.forEach((value, key) => {
     if (!hopByHopHeaders.has(key.toLowerCase())) {
       filteredHeaders[key] = value;
@@ -66,12 +64,20 @@ async function handler(req: NextRequest) {
     // Prepare the fetch options
     const fetchOptions: RequestInit = {
       method: req.method,
-      headers: filterAndForwardHeaders(req.headers),
+      headers: {
+        ...filterAndForwardHeaders(req.headers),
+        "x-api-key": API_KEY || "",
+      },
       // Only include body for methods that typically have one
       ...(["POST", "PUT", "PATCH"].includes(req.method) && {
         body: await req.text(),
       }),
     };
+
+    logger.log(
+      "🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀 ~ fetchOptions: ",
+      fetchOptions
+    );
 
     // Forward the request to the remote API
     const response = await fetch(fullUrl, fetchOptions);
