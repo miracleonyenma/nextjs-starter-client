@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Rethink_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 const rethinkSans = Rethink_Sans({
   variable: "--font-rethink-sans",
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body className={`${rethinkSans.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
+          <Toaster position="top-center" offset={"2rem"} theme="system" />
         </ThemeProvider>
       </body>
     </html>

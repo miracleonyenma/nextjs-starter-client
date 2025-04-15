@@ -160,7 +160,7 @@ const VerifyEmailPage = () => {
                     <InputOTPSlot
                       key={index}
                       index={index}
-                      className="form-input !rounded-xl text-lg capitalize lg:text-2xl"
+                      className="form-input !rounded-xl p-6 text-lg capitalize lg:text-2xl"
                     />
                   ))}
                 </InputOTPGroup>
