@@ -1,3 +1,4 @@
+import { createSession } from "@/app/lib/session";
 import { serverLoginUser } from "@/utils/auth/loginUser";
 import { logger } from "@untools/logger";
 import { cookies } from "next/headers";
@@ -8,6 +9,12 @@ const POST = async (request: Request) => {
   try {
     const data = await serverLoginUser({ ...body });
     logger.log("🚀 ~ file: route.ts ~ line 13 ~ POST ~ data", data);
+
+    // create session here
+    if (data?.login.user) {
+      logger.info("Creating session for user:", data?.login.user);
+      await createSession(data?.login.user);
+    }
 
     if (data?.login.accessToken)
       (await cookies()).set("accessToken", data?.login.accessToken, {
