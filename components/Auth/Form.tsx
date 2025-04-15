@@ -230,21 +230,23 @@ const AuthForm: React.FC<{
               setLoading(false);
               logger.error("🚨🚨🚨🚨🚨🚨 ~ handleAuth error: ", error);
 
-              return (
-                <>
-                  <span>{error.message}</span>
-                  {(error.message as string)
-                    .toLowerCase()
-                    .includes("not verified") && (
-                    <Link
-                      href={`/auth/verify?email=${values.email}`}
-                      className="btn ml-auto"
-                    >
-                      Verify
-                    </Link>
-                  )}
-                </>
-              );
+              return {
+                message: error.message,
+                action: (
+                  <div className="flex justify-end ml-auto items-center gap-2">
+                    {(error.message as string)
+                      .toLowerCase()
+                      .includes("not verified") && (
+                      <Link
+                        href={`/auth/verify?email=${values.email}`}
+                        className="btn ml-auto"
+                      >
+                        Verify
+                      </Link>
+                    )}
+                  </div>
+                ),
+              };
             },
           }
         );
