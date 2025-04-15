@@ -24,8 +24,7 @@ const GET = async (request: NextRequest) => {
     const res = await handleGetGoogleSession({ code });
     logger.log("🌴🌴🌴🌴🌴 ~ res", res);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const googleAuth = (res as any).data?.googleAuth;
+    const googleAuth = res?.googleAuth;
     const { user, accessToken, refreshToken } = googleAuth;
 
     if (accessToken && refreshToken) {
