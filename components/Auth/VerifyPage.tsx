@@ -1,6 +1,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 
 import {
   InputOTP,
@@ -17,24 +17,6 @@ import verifyOTP from "@/utils/auth/verifyOTP";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Mail01Icon } from "@hugeicons/core-free-icons";
 import { logger } from "@untools/logger";
-
-// // eslint-disable-next-line @typescript-eslint/no-explicit-any
-// const sendRequest = async (path: string, body: { [key: string]: any }) => {
-//   const res = await fetch(path, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(body),
-//   });
-
-//   if (!res.ok) {
-//     throw await res.text();
-//   }
-//   const data = await res.json();
-//   return data;
-// };
-
 const VerifyEmailPage = () => {
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
