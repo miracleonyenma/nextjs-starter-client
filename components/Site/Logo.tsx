@@ -1,10 +1,10 @@
+import StarterIcon from "@/components/Icon/Starter";
+
 const SiteLogo = () => {
   return (
-    <figure className="flex items-center gap-1 text-indigo-400 dark:text-indigo-400">
-      {/* <StarterIcon className="icon text-payred-06 h-12 w-12" /> */}
-      <figcaption className="mt-1 text-2xl font-extrabold">
-        Commitments
-      </figcaption>
+    <figure className="flex items-center gap-1 text-blue-600">
+      <StarterIcon className="icon text-payred-06 h-12 w-12" />
+      <figcaption className="text-2xl font-extrabold">Starter</figcaption>
     </figure>
   );
 };
