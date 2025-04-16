@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Rethink_Sans } from "next/font/google";
+import { Host_Grotesk } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import "./globals.css";
 import { Toaster } from "sonner";
+import NextTopLoader from "nextjs-toploader";
+import "./globals.css";
 
-const rethinkSans = Rethink_Sans({
-  variable: "--font-rethink-sans",
+const hostGrotesk = Host_Grotesk({
+  variable: "--font-host-grotesk",
   subsets: ["latin"],
 });
 
@@ -21,7 +22,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${rethinkSans.variable}`}>
+      <body className={`${hostGrotesk.variable}`}>
+        <NextTopLoader showSpinner={false} color="#51a2ff" />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {children}
           <Toaster position="top-center" offset={"2rem"} theme="system" />

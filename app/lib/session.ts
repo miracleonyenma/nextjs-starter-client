@@ -38,7 +38,7 @@ export async function createSession(user: User) {
   const session = await encrypt(user);
   const cookieStore = await cookies();
 
-  logger.debug("Creating session:", session);
+  // logger.debug("Creating session:", session);
 
   cookieStore.set("session", session, {
     httpOnly: true,
@@ -49,7 +49,7 @@ export async function createSession(user: User) {
   });
 
   // created cookie
-  logger.debug("Created cookie:", cookieStore.get("session")?.value);
+  // logger.debug("Created cookie:", cookieStore.get("session")?.value);
 }
 
 export async function updateSession() {
