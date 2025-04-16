@@ -19,6 +19,7 @@ export async function encrypt(payload: User) {
 }
 
 export async function decrypt(session: string | undefined = "") {
+  if (!session) return null;
   logger.debug("Decrypting session:", session);
   logger.debug("Secret key:", secretKey);
   logger.debug("Encoded key:", encodedKey);

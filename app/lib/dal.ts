@@ -13,21 +13,20 @@ import { publicRoutes } from "@/middleware";
 export const verifySession = cache(async () => {
   const currentPath = (await headers()).get("x-pathname");
   const cookie = (await cookies()).get("session")?.value;
-  const session = await decrypt(cookie);
-  const accessToken = (await cookies()).get("accessToken")?.value;
+  logger.log("🚀 ~ cookie: ", cookie);
+  if (cookie) {
+    const session = await decrypt(cookie);
+    const accessToken = (await cookies()).get("accessToken")?.value;
 
-  logger.log("🚀 ~ session: ", session);
-  logger.log("🚀 ~ currentPath: ", currentPath);
-
-  if (
-    (!session?.id || !accessToken) &&
-    currentPath &&
-    !publicRoutes.includes(currentPath)
-  ) {
+    logger.log("🚀 ~ session: ", session);
+    logger.log("🚀 ~ currentPath: ", currentPath);
+    if (session?.id || accessToken) {
+      return { isAuth: true, user: session, accessToken };
+    }
+  }
+  if (currentPath && !publicRoutes.includes(currentPath)) {
     redirect("/auth/login");
   }
-
-  return { isAuth: true, user: session, accessToken };
 });
 
 export const getUser = cache(async () => {
