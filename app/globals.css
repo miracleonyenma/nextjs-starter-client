@@ -344,3 +344,12 @@
     @apply rounded-full shadow border border-gray-200 dark:border-gray-700;
   }
 }
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
