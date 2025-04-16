@@ -6,7 +6,7 @@ const AccountProfile = async () => {
     const user = (await getUser())?.me;
     if (!user) return <div>Loading...</div>;
     return (
-      <div className="wrapper">
+      <div className="wrapper p-4 lg:p-8">
         <ProfileForm user={user} />
       </div>
     );

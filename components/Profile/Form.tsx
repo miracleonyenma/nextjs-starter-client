@@ -103,7 +103,7 @@ const ProfileForm: React.FC<{ user: User }> = ({ user }) => {
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      <div className="wrapper mx-auto flex w-full flex-col gap-4">
+      <div className="wrapper max-w-5xl flex w-full flex-col gap-4">
         {/* profile picture file input */}
         <div className="form-control flex grow flex-col gap-2">
           {/* preview image */}
