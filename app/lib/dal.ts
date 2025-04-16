@@ -1,6 +1,6 @@
 import "server-only";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { decrypt } from "@/app/lib/session";
 import { cache } from "react";
 import { redirect } from "next/navigation";
@@ -8,13 +8,22 @@ import { gqlServerClient } from "@/lib/gqlClient";
 import { Query } from "@/types/gql/graphql";
 import { ME_QUERY } from "@/utils/auth/me";
 import { logger } from "@untools/logger";
+import { publicRoutes } from "@/middleware";
 
 export const verifySession = cache(async () => {
+  const currentPath = (await headers()).get("x-pathname");
   const cookie = (await cookies()).get("session")?.value;
   const session = await decrypt(cookie);
   const accessToken = (await cookies()).get("accessToken")?.value;
 
-  if (!session?.userId || !accessToken) {
+  logger.log("🚀 ~ session: ", session);
+  logger.log("🚀 ~ currentPath: ", currentPath);
+
+  if (
+    (!session?.id || !accessToken) &&
+    currentPath &&
+    !publicRoutes.includes(currentPath)
+  ) {
     redirect("/auth/login");
   }
 

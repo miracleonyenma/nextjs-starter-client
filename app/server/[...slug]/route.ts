@@ -1,5 +1,6 @@
-import { logger } from "@untools/logger";
 import { NextRequest } from "next/server";
+import { cookies } from "next/headers";
+import { logger } from "@untools/logger";
 
 // Configure your remote API base URL
 const API_URL = process.env.NEXT_PUBLIC_BASE_API;
@@ -37,6 +38,7 @@ function filterAndForwardHeaders(headers: Headers) {
 // Main handler function for all HTTP methods
 async function handler(req: NextRequest) {
   try {
+    const cookieStore = await cookies();
     const IS_GRAPHQL = req.nextUrl.pathname.includes("graphql");
 
     // Get the path from the dynamic route parameter
@@ -58,6 +60,9 @@ async function handler(req: NextRequest) {
     const queryString = searchParams.toString();
     const fullUrl = queryString ? `${url}?${queryString}` : url;
 
+    // get accessToken
+    const accessToken = cookieStore.get("accessToken")?.value;
+
     logger.log("🚀 ~ fullUrl: ", fullUrl);
 
     // Clone the request to safely read its body
@@ -67,6 +72,7 @@ async function handler(req: NextRequest) {
     const headers: Record<string, string> = {
       ...filterAndForwardHeaders(req.headers),
       "x-api-key": API_KEY || "",
+      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
     };
 
     // Process request body for POST, PUT, PATCH

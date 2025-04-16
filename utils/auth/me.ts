@@ -22,12 +22,9 @@ query Me {
 }
 `;
 
-const getMe = async ({ token }: { token?: string }) => {
+const getMe = async () => {
   return gqlClient.executeGraphQL()<{ me: Query["me"] }, undefined>({
     query: ME_QUERY,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
   });
 };
 

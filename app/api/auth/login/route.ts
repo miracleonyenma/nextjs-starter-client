@@ -19,14 +19,26 @@ const POST = async (request: Request) => {
     if (data?.login.accessToken)
       (await cookies()).set("accessToken", data?.login.accessToken, {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 3 days
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+        path: "/",
       });
     if (data?.login.refreshToken)
       (await cookies()).set("refreshToken", data?.login.refreshToken, {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+        path: "/",
       });
     if (data?.login.user)
       (await cookies()).set("user", JSON.stringify(data?.login.user), {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 3 days
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+        path: "/",
       });
 
     return Response.json(data);

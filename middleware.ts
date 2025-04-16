@@ -3,8 +3,8 @@ import { decrypt } from "@/app/lib/session";
 import { cookies } from "next/headers";
 
 // 1. Specify protected and public routes
-const protectedRoutes = ["/dashboard"];
-const publicRoutes = ["/auth/login", "/auth/register", "/"];
+export const protectedRoutes = ["/dashboard"];
+export const publicRoutes = ["/auth/login", "/auth/register", "/"];
 
 export default async function middleware(req: NextRequest) {
   // 2. Check if the current route is protected or public
@@ -30,7 +30,12 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
   }
 
-  return NextResponse.next();
+  req.headers.set("x-pathname", path);
+  return NextResponse.next({
+    request: {
+      headers: req.headers,
+    },
+  });
 }
 
 // Routes Middleware should not run on
