@@ -1,4 +1,3 @@
-// app/opengraph-image.tsx
 import { ImageResponse } from "next/og";
 
 // Image metadata
@@ -9,7 +8,9 @@ export const size = {
 
 export const contentType = "image/png";
 
-// Image generation function
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Starter";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "example.com";
+
 export default async function Image() {
   try {
     return new ImageResponse(
@@ -19,147 +20,114 @@ export default async function Image() {
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
-            alignItems: "center",
+            alignItems: "flex-start",
             width: "100%",
             height: "100%",
+            padding: "80px",
             background: "linear-gradient(135deg, #EBF4FF, #FFFFFF)",
             fontFamily: "system-ui, -apple-system, sans-serif",
           }}
         >
-          {/* Content container with subtle border */}
+          {/* Main content */}
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              width: "92%",
-              height: "92%",
-              padding: "40px",
-              borderRadius: "28px",
-              background: "white",
-              boxShadow: "0 8px 40px rgba(37, 99, 235, 0.12)",
-              border: "1px solid rgba(37, 99, 235, 0.08)",
+              flexDirection: "row",
+              alignItems: "flex-start",
+              gap: "40px",
             }}
           >
-            {/* Logo and name container */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: "12px",
-              }}
+            {/* Logo */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="140"
+              height="140"
+              viewBox="0 0 200 200"
             >
-              {/* Logo - Updated with more modern design */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="90"
-                height="90"
-                viewBox="0 0 200 200"
-                style={{ marginRight: "28px" }}
+              <rect
+                width="180"
+                height="180"
+                x="10"
+                y="10"
+                fill="#1D4ED8"
+                rx="40"
+              />
+              <rect
+                width="130"
+                height="130"
+                x="35"
+                y="35"
+                fill="#3B82F6"
+                rx="30"
+              />
+              <rect
+                width="80"
+                height="80"
+                x="60"
+                y="60"
+                fill="#FFFFFF"
+                rx="20"
+              />
+              <path
+                d="M100 85 L115 115 L90 100 L110 100 L85 115 Z"
+                fill="#1D4ED8"
+              />
+            </svg>
+
+            {/* Text Content */}
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "24px" }}
+            >
+              {/* App name */}
+              <span
+                style={{
+                  fontSize: "72px",
+                  fontWeight: "800",
+                  color: "#1D4ED8",
+                  letterSpacing: "-0.03em",
+                  lineHeight: "1",
+                }}
               >
-                <rect
-                  width="180"
-                  height="180"
-                  x="10"
-                  y="10"
-                  fill="#1D4ED8"
-                  rx="40"
-                />
-                <rect
-                  width="130"
-                  height="130"
-                  x="35"
-                  y="35"
-                  fill="#3B82F6"
-                  rx="30"
-                />
-                <rect
-                  width="80"
-                  height="80"
-                  x="60"
-                  y="60"
-                  fill="#FFFFFF"
-                  rx="20"
-                />
-                <path
-                  d="M100 85 L115 115 L90 100 L110 100 L85 115 Z"
-                  fill="#1D4ED8"
-                />
-              </svg>
+                {APP_NAME}
+              </span>
 
-              {/* Site name with stylish treatment */}
-              <div style={{ display: "flex", flexDirection: "column" }}>
-                <span
-                  style={{
-                    fontSize: "72px",
-                    fontWeight: "800",
-                    color: "#1D4ED8",
-                    letterSpacing: "-0.03em",
-                    lineHeight: "1",
-                  }}
-                >
-                  Starter
-                </span>
-                <span
-                  style={{
-                    fontSize: "24px",
-                    color: "#6B7280",
-                    letterSpacing: "0.02em",
-                    marginTop: "4px",
-                  }}
-                >
-                  by Next.js
-                </span>
-              </div>
-            </div>
+              {/* Separator line */}
+              <div
+                style={{
+                  width: "120px",
+                  height: "4px",
+                  background: "linear-gradient(to right, #1D4ED8, #60A5FA)",
+                  borderRadius: "4px",
+                }}
+              />
 
-            {/* Separator line with gradient */}
-            <div
-              style={{
-                width: "120px",
-                height: "4px",
-                background: "linear-gradient(to right, #1D4ED8, #60A5FA)",
-                borderRadius: "4px",
-                margin: "28px 0 32px 0",
-              }}
-            />
+              {/* Tagline */}
+              <span
+                style={{
+                  fontSize: "36px",
+                  color: "#374151",
+                  fontWeight: "500",
+                  lineHeight: "1.4",
+                  maxWidth: "600px",
+                }}
+              >
+                Modern foundation for your Next.js projects
+              </span>
 
-            {/* Tagline */}
-            <span
-              style={{
-                fontSize: "36px",
-                color: "#374151",
-                fontWeight: "500",
-                textAlign: "center",
-                maxWidth: "80%",
-                lineHeight: "1.3",
-              }}
-            >
-              Modern foundation for your Next.js projects
-            </span>
-
-            {/* Feature icons */}
-            <div
-              style={{
-                display: "flex",
-                gap: "40px",
-                marginTop: "40px",
-              }}
-            >
-              {/* Performance icon */}
+              {/* Features */}
               <div
                 style={{
                   display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
+                  flexDirection: "row",
+                  gap: "40px",
+                  marginTop: "20px",
                 }}
               >
+                {/* Performance */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
+                  width="36"
+                  height="36"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="#3B82F6"
@@ -169,29 +137,12 @@ export default async function Image() {
                 >
                   <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                 </svg>
-                <span
-                  style={{
-                    fontSize: "16px",
-                    color: "#4B5563",
-                    marginTop: "8px",
-                  }}
-                >
-                  Performance
-                </span>
-              </div>
 
-              {/* Responsive icon */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
+                {/* Responsive */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
+                  width="36"
+                  height="36"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="#3B82F6"
@@ -203,29 +154,12 @@ export default async function Image() {
                   <line x1="8" y1="21" x2="16" y2="21" />
                   <line x1="12" y1="17" x2="12" y2="21" />
                 </svg>
-                <span
-                  style={{
-                    fontSize: "16px",
-                    color: "#4B5563",
-                    marginTop: "8px",
-                  }}
-                >
-                  Responsive
-                </span>
-              </div>
 
-              {/* Modern icon */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
+                {/* Modern */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
+                  width="36"
+                  height="36"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="#3B82F6"
@@ -236,34 +170,25 @@ export default async function Image() {
                   <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
                   <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
                 </svg>
-                <span
-                  style={{
-                    fontSize: "16px",
-                    color: "#4B5563",
-                    marginTop: "8px",
-                  }}
-                >
-                  Modern
-                </span>
               </div>
             </div>
           </div>
 
-          {/* Footer text */}
+          {/* Footer */}
           <div
             style={{
               position: "absolute",
-              bottom: "20px",
+              bottom: "40px",
+              left: "80px",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              gap: "6px",
+              gap: "8px",
             }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="#6B7280"
@@ -282,7 +207,7 @@ export default async function Image() {
                 fontWeight: "500",
               }}
             >
-              example.com
+              {APP_URL}
             </span>
           </div>
         </div>
@@ -292,7 +217,6 @@ export default async function Image() {
       }
     );
   } catch (e) {
-    // Fallback in case of any error
     console.error(`Error generating OG image: ${e}`);
     return new ImageResponse(
       (
