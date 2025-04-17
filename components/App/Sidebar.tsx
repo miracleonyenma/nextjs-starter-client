@@ -11,8 +11,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
+  Cancel01Icon,
   Comment01Icon,
   Home01Icon,
   InboxIcon,
@@ -23,9 +25,12 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { JSX } from "react";
 import AuthUserButton from "../Auth/User/Button";
 import { useUserStore } from "@/store/useUserStore";
+import SiteLogo from "../Site/Logo";
 
 export function AppSidebar() {
   const { user } = useUserStore();
+  const { toggleSidebar, isMobile } = useSidebar();
+
   // Menu items.
   const items = [
     {
@@ -92,8 +97,26 @@ export function AppSidebar() {
     },
   ];
   return (
-    <Sidebar variant="inset" collapsible="icon" className="pt-8">
-      <SidebarHeader />
+    <Sidebar variant="inset" collapsible="icon" className="pt-12">
+      {isMobile && (
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg">
+                <button className="btn ghost sm !p-0" onClick={toggleSidebar}>
+                  <HugeiconsIcon
+                    icon={Cancel01Icon}
+                    className="icon"
+                    color="currentColor"
+                    strokeWidth={2}
+                  />
+                </button>
+                <SiteLogo />
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+      )}
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
