@@ -1,6 +1,6 @@
 // ./app/api/auth/logout/route.ts
 
-import { deleteSession } from "@/app/lib/session";
+import { deleteSession } from "@/lib/session";
 
 export async function GET() {
   try {

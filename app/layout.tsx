@@ -4,7 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
-import { getUser } from "./lib/dal";
+import { getUser } from "@/lib/dal";
 import Auth from "@/components/Auth";
 
 const hostGrotesk = Host_Grotesk({

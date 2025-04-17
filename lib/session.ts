@@ -9,6 +9,11 @@ import refreshToken from "@/utils/auth/refreshToken";
 
 const secretKey = process.env.SESSION_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
+export const expiresAt = {
+  threeDays: new Date(Date.now() + 1000 * 60),
+  sevenDays: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+  thirtyDays: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+};
 
 export async function encrypt(payload: User) {
   return new SignJWT({ id: payload.id, role: payload.roles })
@@ -44,7 +49,6 @@ export async function createSession({
   accessToken?: string;
   refreshToken?: string;
 }) {
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const session = await encrypt(user);
   const cookieStore = await cookies();
 
@@ -53,14 +57,14 @@ export async function createSession({
   cookieStore.set("session", session, {
     httpOnly: true,
     secure: true,
-    expires: expiresAt,
+    expires: expiresAt.threeDays,
     sameSite: "lax",
     path: "/",
   });
 
   if (accessToken)
     (await cookies()).set("accessToken", accessToken, {
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 3 days
+      expires: expiresAt.threeDays, // 3 days
       httpOnly: true,
       secure: true,
       sameSite: "lax",
@@ -68,7 +72,7 @@ export async function createSession({
     });
   if (refreshToken)
     (await cookies()).set("refreshToken", refreshToken, {
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+      expires: expiresAt.sevenDays, // 7 days
       httpOnly: true,
       secure: true,
       sameSite: "lax",
@@ -80,27 +84,55 @@ export async function createSession({
 }
 
 export async function updateSession() {
-  const session = (await cookies()).get("session")?.value;
-  const token = (await cookies()).get("refreshToken")?.value;
+  const cookieStore = await cookies();
+  const session = cookieStore.get("session")?.value;
+  const token = cookieStore.get("refreshToken")?.value;
 
-  // refresh token
-  if (token && session) {
+  if (!session || !token) return null;
+
+  try {
+    // Get new access token using refresh token
     const data = await refreshToken(token);
-    if (!data.refreshToken.accessToken) {
-      return null;
+    const accessToken = data.refreshToken?.accessToken;
+    if (!accessToken) {
+      return false;
     }
 
-    const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
-    const cookieStore = await cookies();
-    cookieStore.set("session", session, {
+    cookieStore.set("accessToken", accessToken, {
+      expires: expiresAt.threeDays, // 3 days
       httpOnly: true,
       secure: true,
-      expires: expires,
       sameSite: "lax",
       path: "/",
     });
+
+    cookieStore.set("session", session, {
+      httpOnly: true,
+      secure: true,
+      expires: expiresAt.threeDays,
+      sameSite: "lax",
+      path: "/",
+    });
+  } catch (error) {
+    console.log("🚨🚨🚨🚨🚨🚨 ~ error", error);
+    return null;
   }
+
+  // refresh token
+  // const data = await refreshToken(token);
+  // if (!data.refreshToken.accessToken) {
+  //   return null;
+  // }
+
+  // const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+  // cookieStore.set("session", session, {
+  //   httpOnly: true,
+  //   secure: true,
+  //   expires: expires,
+  //   sameSite: "lax",
+  //   path: "/",
+  // });
 }
 export async function deleteSession() {
   // This function should only be called from a Server Action or Route Handler

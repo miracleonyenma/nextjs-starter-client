@@ -1,3 +1,5 @@
+// ./lib/gqlClient.ts
+
 import { GraphQLClient } from "@untools/gql-client";
 const GRAPHQL_API_URL = process.env.NEXT_PUBLIC_GRAPHQL_API;
 const API_KEY = process.env.API_KEY;

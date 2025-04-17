@@ -1,4 +1,4 @@
-import { getUser } from "@/app/lib/dal";
+import { getUser } from "@/lib/dal";
 import ProfileForm from "@/components/Profile/Form";
 
 const AccountProfile = async () => {

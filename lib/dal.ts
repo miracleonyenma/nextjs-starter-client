@@ -2,7 +2,7 @@
 import "server-only";
 
 import { cookies, headers } from "next/headers";
-import { decrypt } from "@/app/lib/session"; // Remove deleteSession import
+import { decrypt, updateSession } from "@/lib/session"; // Remove deleteSession import
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { gqlServerClient } from "@/lib/gqlClient";
@@ -16,7 +16,7 @@ const PROTECTED_PATTERNS = ["/dashboard"];
 function isProtectedRoute(path: string | null): boolean {
   if (!path) return false;
   return PROTECTED_PATTERNS.some(
-    (pattern) => path === pattern || path.startsWith(`${pattern}/`)
+    (pattern) => path === pattern || path.startsWith(`${pattern}/`),
   );
 }
 
@@ -65,13 +65,25 @@ export const getUser = cache(async () => {
   } catch (error) {
     logger.error("Error getting user:", error);
 
-    // When token is invalid, redirect to logout page which uses a server action
+    // Simplified token refresh logic
     if (
+      error &&
       ((error as Error).message.includes("Invalid") ||
-        (error as Error).message.includes("expired token")) &&
-      !currentPath?.includes("auth")
+        (error as Error).message.includes("expired token"))
     ) {
-      redirect("/auth/logout");
+      // Try to refresh the token
+      const refreshSuccess = await updateSession();
+
+      if (refreshSuccess) {
+        // If refresh was successful, redirect to the same page to retry with new token
+        if (currentPath) {
+          redirect(currentPath);
+        }
+        return null;
+      } else {
+        // If refresh failed, redirect to logout
+        redirect("/auth/logout");
+      }
     }
     return null;
   }

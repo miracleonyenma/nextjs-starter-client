@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { handleGetGoogleSession } from "@/utils/auth/google";
 import { logger } from "@untools/logger";
-import { createSession } from "@/app/lib/session";
+import { createSession } from "@/lib/session";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL;

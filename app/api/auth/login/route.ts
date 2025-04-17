@@ -1,4 +1,4 @@
-import { createSession } from "@/app/lib/session";
+import { createSession } from "@/lib/session";
 import { serverLoginUser } from "@/utils/auth/loginUser";
 import { logger } from "@untools/logger";
 

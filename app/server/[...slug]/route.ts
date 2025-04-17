@@ -3,6 +3,7 @@
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { logger } from "@untools/logger";
+import { updateSession } from "@/lib/session";
 
 // Configure your remote API base URL
 const API_URL = process.env.NEXT_PUBLIC_BASE_API;
@@ -107,12 +108,29 @@ async function handler(req: NextRequest) {
     });
 
     // Forward the request to the remote API
-    const response = await fetch(fullUrl, fetchOptions);
+    let response = await fetch(fullUrl, fetchOptions);
+
+    // Handle 401 Unauthorized response
+    if (response.status === 401) {
+      // Try to refresh the token
+      const refreshSuccess = await updateSession();
+
+      if (refreshSuccess) {
+        // Get the new access token
+        const newAccessToken = (await cookies()).get("accessToken")?.value;
+
+        // Update headers with new token
+        headers["Authorization"] = `Bearer ${newAccessToken}`;
+
+        // Retry the original request with the new token
+        response = await fetch(fullUrl, fetchOptions);
+      }
+    }
 
     logger.log("🚀 ~ response status:", response.status);
     logger.log(
       "🚀 ~ response headers:",
-      Object.fromEntries(response.headers.entries())
+      Object.fromEntries(response.headers.entries()),
     );
 
     // Get the response content as text
@@ -158,7 +176,7 @@ async function handler(req: NextRequest) {
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
   }
 }
