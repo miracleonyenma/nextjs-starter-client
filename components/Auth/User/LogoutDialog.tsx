@@ -29,7 +29,7 @@ export const AuthUserLogoutDialog: React.FC<{
       <Dialog.Portal forceMount>
         <AnimatePresence mode="popLayout">
           {open && (
-            <Dialog.Overlay className="fixed left-0 top-0 h-full w-full">
+            <Dialog.Overlay className="fixed left-0 z-30 top-0 h-full w-full">
               <motion.div
                 className="fixed inset-0 bg-black/40"
                 {...variants.overlay}
@@ -39,7 +39,7 @@ export const AuthUserLogoutDialog: React.FC<{
         </AnimatePresence>
         <AnimatePresence mode="popLayout">
           {open && (
-            <Dialog.Content className="fixed left-1/2 top-1/2 z-20 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2">
+            <Dialog.Content className="fixed left-1/2 top-1/2 z-40 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2">
               <motion.div
                 className="flex-col overflow-hidden rounded-xl border border-gray-200 bg-gray-100 sm:w-[384px] dark:border-gray-700 dark:bg-gray-800"
                 {...variants.content}

@@ -138,7 +138,7 @@ export function AppSidebar() {
         <NavSecondary items={secondaryItems} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <AuthUserButton user={user} expanded small />
+        <AuthUserButton user={user} expanded sidebar />
       </SidebarFooter>
     </Sidebar>
   );

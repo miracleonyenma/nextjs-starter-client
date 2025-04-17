@@ -13,9 +13,7 @@ export default async function Layout({
         <AppHeader />
         <div className="flex flex-1">
           <AppSidebar />
-          <SidebarInset>
-            <main>{children}</main>
-          </SidebarInset>
+          <SidebarInset>{children}</SidebarInset>
         </div>
       </SidebarProvider>
     </main>
