@@ -53,60 +53,59 @@ const AuthUserButton: React.FC<{
 
   return (
     <>
-      {
-        user?.id ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="btn ghost flex items-center !p-0 gap-2">
-                <Avatar className="h-10 w-10 rounded-full">
-                  <AvatarImage
-                    src={user?.picture || "https://github.com/shadcn.png"}
-                    alt={user?.firstName || "user"}
-                  />
-                  <AvatarFallback>
-                    <span className="uppercase">
-                      {user.firstName?.charAt(0)}
-                      {user.lastName?.charAt(0)}
-                    </span>
-                  </AvatarFallback>
-                </Avatar>
-                {expanded && <UserInfo user={user} small={small} />}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-72">
-              <DropdownMenuLabel>
-                <UserInfo user={user} />
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem className="px-4 py-3" asChild>
-                  <Link href={"/account"}>Account</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="px-4 py-3" asChild>
-                  <Link href={"/notes"}>Notes</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="px-4 py-3" disabled>
-                  Upgrade to Pro
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="px-4 py-3"
-                onClick={() => {
-                  setLogoutDialogOpen(true);
-                }}
-              >
-                Log out
-                <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
+      {user?.id ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="btn ghost flex items-center !p-0 gap-2">
+              <Avatar className="h-10 w-10 rounded-full">
+                <AvatarImage
+                  src={user?.picture || "https://github.com/shadcn.png"}
+                  alt={user?.firstName || "user"}
+                />
+                <AvatarFallback>
+                  <span className="uppercase">
+                    {user.firstName?.charAt(0)}
+                    {user.lastName?.charAt(0)}
+                  </span>
+                </AvatarFallback>
+              </Avatar>
+              {expanded && <UserInfo user={user} small={small} />}
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-72">
+            <DropdownMenuLabel>
+              <UserInfo user={user} />
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem className="px-4 py-3" asChild>
+                <Link href={"/account"}>Account</Link>
               </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : null
-        // <Link href="/auth/register" className="btn md primary">
-        //   Sign Up
-        // </Link>
-      }
+              <DropdownMenuItem className="px-4 py-3" asChild>
+                <Link href={"/notes"}>Notes</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="px-4 py-3" disabled>
+                Upgrade to Pro
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="px-4 py-3"
+              onClick={() => {
+                setLogoutDialogOpen(true);
+              }}
+            >
+              Log out
+              <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <Link href="/auth/register" className="btn md primary">
+          Sign Up
+        </Link>
+      )}
 
       <AuthUserLogoutDialog
         open={logoutDialogOpen}
