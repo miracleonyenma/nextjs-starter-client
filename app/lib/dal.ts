@@ -2,24 +2,32 @@
 import "server-only";
 
 import { cookies, headers } from "next/headers";
-import { decrypt } from "@/app/lib/session";
+import { decrypt } from "@/app/lib/session"; // Remove deleteSession import
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { gqlServerClient } from "@/lib/gqlClient";
 import { Query } from "@/types/gql/graphql";
 import { ME_QUERY } from "@/utils/auth/me";
 import { logger } from "@untools/logger";
-import { isPublicRoute, isAuthRoute } from "@/utils/routePatterns";
+
+// Simplified route check - let middleware handle most redirects
+const PROTECTED_PATTERNS = ["/dashboard"];
+
+function isProtectedRoute(path: string | null): boolean {
+  if (!path) return false;
+  return PROTECTED_PATTERNS.some(
+    (pattern) => path === pattern || path.startsWith(`${pattern}/`)
+  );
+}
 
 export const verifySession = cache(async () => {
   const currentPath = (await headers()).get("x-pathname");
   const cookie = (await cookies()).get("session")?.value;
-  logger.log("🚀 ~ cookie: ", cookie);
+  const accessToken = (await cookies()).get("accessToken")?.value;
 
   if (cookie) {
+    logger.log("🚀 ~ cookie: ", cookie);
     const session = await decrypt(cookie);
-    const accessToken = (await cookies()).get("accessToken")?.value;
-
     logger.log("🚀 ~ session: ", session);
     logger.log("🚀 ~ currentPath: ", currentPath);
 
@@ -28,15 +36,19 @@ export const verifySession = cache(async () => {
     }
   }
 
-  // Check if current path is a public or auth route
-  if (currentPath && !isPublicRoute(currentPath) && !isAuthRoute(currentPath)) {
+  // Only redirect from protected routes that somehow bypassed middleware
+  if (currentPath && isProtectedRoute(currentPath)) {
     redirect("/auth/login");
   }
+
+  return { isAuth: false, user: null, accessToken: null };
 });
 
 export const getUser = cache(async () => {
   const session = await verifySession();
-  if (!session) return null;
+  const currentPath = (await headers()).get("x-pathname");
+
+  if (!session?.isAuth) return null;
 
   try {
     const user = await gqlServerClient.executeGraphQL()<
@@ -52,6 +64,15 @@ export const getUser = cache(async () => {
     return user;
   } catch (error) {
     logger.error("Error getting user:", error);
+
+    // When token is invalid, redirect to logout page which uses a server action
+    if (
+      ((error as Error).message.includes("Invalid") ||
+        (error as Error).message.includes("expired token")) &&
+      !currentPath?.includes("auth")
+    ) {
+      redirect("/auth/logout");
+    }
     return null;
   }
 });

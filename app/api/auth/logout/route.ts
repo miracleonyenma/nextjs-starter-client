@@ -1,18 +1,15 @@
-import { deleteSession } from "@/app/lib/session";
-import { cookies } from "next/headers";
+// ./app/api/auth/logout/route.ts
 
-const GET = async () => {
+import { deleteSession } from "@/app/lib/session";
+
+export async function GET() {
   try {
-    deleteSession();
-    (await cookies()).set("accessToken", "", { expires: new Date() });
-    (await cookies()).set("refreshToken", "", { expires: new Date() });
-    (await cookies()).set("user", "", { expires: new Date() });
+    const { deleteCookies } = await deleteSession();
+    await deleteCookies(); // Call the deleteCookies function here
 
     return Response.json({ success: true });
   } catch (error) {
     console.log("🚨🚨🚨🚨🚨🚨 ~ error", error);
     return new Response((error as Error).message, { status: 500 });
   }
-};
-
-export { GET };
+}

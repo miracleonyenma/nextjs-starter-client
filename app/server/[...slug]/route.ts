@@ -1,3 +1,5 @@
+// ./app/server/[...slug]/route.ts
+
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { logger } from "@untools/logger";

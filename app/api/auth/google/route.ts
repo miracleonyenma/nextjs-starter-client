@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { handleGetGoogleSession } from "@/utils/auth/google";
 import { logger } from "@untools/logger";
 import { createSession } from "@/app/lib/session";
@@ -26,18 +25,15 @@ const GET = async (request: NextRequest) => {
     logger.log("🌴🌴🌴🌴🌴 ~ res", res);
 
     const googleAuth = res?.googleAuth;
-    const { user, accessToken, refreshToken } = googleAuth;
 
     // create session here
     if (googleAuth?.user) {
       logger.info("Creating session for user:", googleAuth?.user);
-      await createSession(googleAuth?.user);
-    }
-
-    if (accessToken && refreshToken) {
-      (await cookies()).set("accessToken", accessToken);
-      (await cookies()).set("refreshToken", refreshToken);
-      (await cookies()).set("user", JSON.stringify(user));
+      await createSession({
+        user: googleAuth?.user,
+        accessToken: googleAuth?.accessToken || undefined,
+        refreshToken: googleAuth?.refreshToken || undefined,
+      });
     }
 
     return NextResponse.redirect(`${APP_URL}/`);

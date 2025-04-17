@@ -27,6 +27,7 @@ export async function decrypt(session: string | undefined = "") {
     const { payload } = await jwtVerify(session, encodedKey, {
       algorithms: ["HS256"],
     });
+    logger.debug("Payload:", payload);
     return payload;
   } catch (error) {
     logger.error("Error decrypting session:", error);
@@ -34,7 +35,15 @@ export async function decrypt(session: string | undefined = "") {
   }
 }
 
-export async function createSession(user: User) {
+export async function createSession({
+  user,
+  accessToken,
+  refreshToken,
+}: {
+  user: User;
+  accessToken?: string;
+  refreshToken?: string;
+}) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const session = await encrypt(user);
   const cookieStore = await cookies();
@@ -48,6 +57,23 @@ export async function createSession(user: User) {
     sameSite: "lax",
     path: "/",
   });
+
+  if (accessToken)
+    (await cookies()).set("accessToken", accessToken, {
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 3 days
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+    });
+  if (refreshToken)
+    (await cookies()).set("refreshToken", refreshToken, {
+      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+    });
 
   // created cookie
   // logger.debug("Created cookie:", cookieStore.get("session")?.value);
@@ -76,8 +102,18 @@ export async function updateSession() {
     });
   }
 }
-
 export async function deleteSession() {
-  const cookieStore = await cookies();
-  cookieStore.delete("session");
+  // This function should only be called from a Server Action or Route Handler
+  logger.warn("Deleting session");
+
+  // Return the cookie operations so they can be used in a Server Action or Route Handler
+  return {
+    deleteCookies: async () => {
+      const cookieStore = await cookies();
+      cookieStore.delete("session");
+      cookieStore.delete("accessToken");
+      cookieStore.delete("refreshToken");
+      cookieStore.delete("user");
+    },
+  };
 }
