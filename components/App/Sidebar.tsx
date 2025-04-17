@@ -161,15 +161,17 @@ export function AppSidebar() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild>
-                <button className="btn ghost sm !p-0" onClick={toggleSidebar}>
-                  <HugeiconsIcon
-                    icon={Cancel01Icon}
-                    className="icon"
-                    color="currentColor"
-                    strokeWidth={2}
-                  />
-                </button>
-                <SiteLogo />
+                <div>
+                  <button className="btn ghost sm !p-0" onClick={toggleSidebar}>
+                    <HugeiconsIcon
+                      icon={Cancel01Icon}
+                      className="icon"
+                      color="currentColor"
+                      strokeWidth={2}
+                    />
+                  </button>
+                  <SiteLogo />
+                </div>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
