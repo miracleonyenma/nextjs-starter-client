@@ -160,7 +160,7 @@ export function AppSidebar() {
         <SidebarHeader>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton size="lg">
+              <SidebarMenuButton size="lg" asChild>
                 <button className="btn ghost sm !p-0" onClick={toggleSidebar}>
                   <HugeiconsIcon
                     icon={Cancel01Icon}
