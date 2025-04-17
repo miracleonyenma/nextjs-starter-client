@@ -11,8 +11,8 @@ const AppHeader = () => {
 
   return (
     <header className="app-header sticky top-0 z-30 w-full p-4 py-2">
-      <div className="wrapper mx-auto flex  justify-between gap-4">
-        <div className="flex gap-2 items-center">
+      <div className="wrapper mx-auto flex justify-between gap-4">
+        <div className="flex items-center gap-2 px-0.5">
           <SidebarTrigger />
 
           <Link href="/">
