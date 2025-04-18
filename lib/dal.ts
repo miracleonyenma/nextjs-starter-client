@@ -2,7 +2,7 @@
 import "server-only";
 
 import { cookies, headers } from "next/headers";
-import { decrypt, updateSession } from "@/lib/session"; // Remove deleteSession import
+import { decrypt } from "@/lib/session"; // Remove deleteSession import
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { gqlServerClient } from "@/lib/gqlClient";
@@ -48,6 +48,10 @@ export const getUser = cache(async () => {
   const session = await verifySession();
   const currentPath = (await headers()).get("x-pathname");
 
+  if (currentPath?.includes("logout")) {
+    return null;
+  }
+
   if (!session?.isAuth) return null;
 
   try {
@@ -65,26 +69,6 @@ export const getUser = cache(async () => {
   } catch (error) {
     logger.error("Error getting user:", error);
 
-    // Simplified token refresh logic
-    if (
-      error &&
-      ((error as Error).message.includes("Invalid") ||
-        (error as Error).message.includes("expired token"))
-    ) {
-      // Try to refresh the token
-      const refreshSuccess = await updateSession();
-
-      if (refreshSuccess) {
-        // If refresh was successful, redirect to the same page to retry with new token
-        if (currentPath) {
-          redirect(currentPath);
-        }
-        return null;
-      } else {
-        // If refresh failed, redirect to logout
-        redirect("/auth/logout");
-      }
-    }
     return null;
   }
 });

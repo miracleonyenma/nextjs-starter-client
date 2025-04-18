@@ -5,7 +5,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { User } from "@/types/gql/graphql";
 import { logger } from "@untools/logger";
 import { cookies } from "next/headers";
-import refreshToken from "@/utils/auth/refreshToken";
+import { refreshTokenAction } from "@/app/actions";
 
 const secretKey = process.env.SESSION_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
@@ -57,7 +57,7 @@ export async function createSession({
   cookieStore.set("session", session, {
     httpOnly: true,
     secure: true,
-    expires: expiresAt.threeDays,
+    expires: expiresAt.sevenDays,
     sameSite: "lax",
     path: "/",
   });
@@ -84,56 +84,17 @@ export async function createSession({
 }
 
 export async function updateSession() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get("session")?.value;
-  const token = cookieStore.get("refreshToken")?.value;
-
-  if (!session || !token) return null;
-
+  // Since updateSession might be called from various contexts,
+  // delegate the actual work to the server action
   try {
-    // Get new access token using refresh token
-    const data = await refreshToken(token);
-    const accessToken = data.refreshToken?.accessToken;
-    if (!accessToken) {
-      return false;
-    }
-
-    cookieStore.set("accessToken", accessToken, {
-      expires: expiresAt.threeDays, // 3 days
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
-    });
-
-    cookieStore.set("session", session, {
-      httpOnly: true,
-      secure: true,
-      expires: expiresAt.threeDays,
-      sameSite: "lax",
-      path: "/",
-    });
+    const result = await refreshTokenAction();
+    return result.success;
   } catch (error) {
-    console.log("🚨🚨🚨🚨🚨🚨 ~ error", error);
-    return null;
+    logger.error("Failed to update session:", error);
+    return false;
   }
-
-  // refresh token
-  // const data = await refreshToken(token);
-  // if (!data.refreshToken.accessToken) {
-  //   return null;
-  // }
-
-  // const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
-  // cookieStore.set("session", session, {
-  //   httpOnly: true,
-  //   secure: true,
-  //   expires: expires,
-  //   sameSite: "lax",
-  //   path: "/",
-  // });
 }
+
 export async function deleteSession() {
   // This function should only be called from a Server Action or Route Handler
   logger.warn("Deleting session");
