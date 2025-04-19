@@ -40,7 +40,7 @@ import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/useUserStore";
 import Loader from "@/components/Loader";
 import registerUser from "@/utils/auth/registerUser";
-import { getGoogleAuthURL } from "@/utils/auth/google";
+import { getGoogleAuthURL } from "@/utils/auth/google/client";
 import { Mutation } from "@/types/gql/graphql";
 import { logger } from "@untools/logger";
 
@@ -121,9 +121,9 @@ const AuthForm: React.FC<{
       "Password must contain at least one uppercase, one lowercase, one number and one special character",
       (value) => {
         return /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/.test(
-          value || ""
+          value || "",
         );
-      }
+      },
     )
     .required("Required");
 
@@ -153,7 +153,7 @@ const AuthForm: React.FC<{
               .email("Invalid email address")
               .required("Required"),
             password: validatePassword,
-          }
+          },
     ),
     onSubmit: async (values) => {
       logger.log("🥋🥋🥋🥋🥋🥋 ~ values: ", values);
@@ -181,7 +181,7 @@ const AuthForm: React.FC<{
             finally: () => {
               setLoading(false);
             },
-          }
+          },
         );
       }
       if (type == "login") {
@@ -233,7 +233,7 @@ const AuthForm: React.FC<{
               return {
                 message: error.message,
                 action: (
-                  <div className="flex justify-end ml-auto items-center gap-2">
+                  <div className="ml-auto flex items-center justify-end gap-2">
                     {(error.message as string)
                       .toLowerCase()
                       .includes("not verified") && (
@@ -248,7 +248,7 @@ const AuthForm: React.FC<{
                 ),
               };
             },
-          }
+          },
         );
       }
     },

@@ -4,10 +4,9 @@ import ProfileForm from "@/components/Profile/Form";
 const AccountProfile = async () => {
   try {
     const user = (await getUser())?.me;
-    if (!user) return <div>Loading...</div>;
     return (
       <div className="wrapper p-4 lg:p-8">
-        <ProfileForm user={user} />
+        <ProfileForm user={user || undefined} />
       </div>
     );
   } catch (error) {

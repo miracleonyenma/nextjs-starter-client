@@ -3,16 +3,19 @@
 import { UpdateUserInput, User } from "@/types/gql/graphql";
 import updateUser from "@/utils/user/updateUser";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import * as Yup from "yup";
 import Loader from "../Loader";
 import Image from "next/image";
 import uploadToCloudinary from "@/utils/cloudinary/uploadToCloudinary";
+import useAuth from "@/hooks/useAuth";
+import { logger } from "@untools/logger";
 
-const ProfileForm: React.FC<{ user: User }> = ({ user }) => {
+const ProfileForm: React.FC<{ user?: User }> = ({ user }) => {
+  const { handleGetMe } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
-  const [userData, setUserData] = useState<User>(user);
+  const [userData, setUserData] = useState<User | undefined>(user);
   const [preview, setPreview] = useState<string>("" + userData?.picture || "");
   const [file, setFile] = useState<File | null>(null);
 
@@ -101,9 +104,28 @@ const ProfileForm: React.FC<{ user: User }> = ({ user }) => {
     }
   };
 
-  return (
+  const handleGetUser = useCallback(async () => {
+    const user = await handleGetMe();
+    if (user) {
+      setUserData(user);
+      formik.setValues({
+        picture: user?.picture,
+        firstName: user?.firstName,
+        lastName: user?.lastName,
+        email: user?.email,
+      });
+    }
+  }, [formik, handleGetMe]);
+
+  useEffect(() => {
+    if (!userData && !user) {
+      logger.log("running handleGetUser");
+      handleGetUser();
+    }
+  }, [handleGetUser, user, userData]);
+  return userData ? (
     <form onSubmit={formik.handleSubmit}>
-      <div className="wrapper max-w-5xl flex w-full flex-col gap-4">
+      <div className="wrapper flex w-full max-w-5xl flex-col gap-4">
         {/* profile picture file input */}
         <div className="form-control flex grow flex-col gap-2">
           {/* preview image */}
@@ -209,6 +231,8 @@ const ProfileForm: React.FC<{ user: User }> = ({ user }) => {
         </div>
       </div>
     </form>
+  ) : (
+    <Loader loading={true} />
   );
 };
 

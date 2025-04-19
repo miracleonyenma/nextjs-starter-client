@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { handleGetGoogleSession } from "@/utils/auth/google";
+import { handleGetGoogleSession } from "@/utils/auth/google/server";
 import { logger } from "@untools/logger";
 import { createSession } from "@/lib/session";
 
