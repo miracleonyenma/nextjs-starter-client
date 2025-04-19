@@ -213,6 +213,26 @@ async function handler(req: NextRequest) {
           }
         } else {
           logger.error("Token refresh failed:", refreshResult.error);
+          // Add redirect logic for invalid refresh token
+          if (
+            refreshResult.error?.includes("Invalid refresh token") ||
+            refreshResult.error?.includes("expired")
+          ) {
+            // Return a special response that tells the client to redirect
+            return new Response(
+              JSON.stringify({
+                error: "Authentication failed",
+                redirectTo: "/auth/logout",
+              }),
+              {
+                status: 401,
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-Auth-Redirect": "/auth/logout",
+                },
+              },
+            );
+          }
         }
       }
     }

@@ -5,10 +5,10 @@ import { cookies, headers } from "next/headers";
 import { decrypt } from "@/lib/session"; // Remove deleteSession import
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import { gqlServerClient } from "@/lib/gqlClient";
 import { Query } from "@/types/gql/graphql";
 import { ME_QUERY } from "@/utils/auth/me";
 import { logger } from "@untools/logger";
+import { executeServerGraphQL } from "./gqlServerClient";
 
 // Simplified route check - let middleware handle most redirects
 const PROTECTED_PATTERNS = ["/dashboard"];
@@ -55,14 +55,12 @@ export const getUser = cache(async () => {
   if (!session?.isAuth) return null;
 
   try {
-    const user = await gqlServerClient.executeGraphQL()<
-      { me: Query["me"] },
-      undefined
-    >({
+    const user = await executeServerGraphQL<{ me: Query["me"] }, undefined>({
       query: ME_QUERY,
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
       },
+      shouldRedirectOnFailure: true,
     });
 
     return user;
