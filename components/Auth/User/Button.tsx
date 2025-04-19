@@ -18,6 +18,7 @@ import useShortcut from "@/hooks/useShortcut";
 import { AuthUserLogoutDialog } from "@/components/Auth/User/LogoutDialog";
 import { useRouter } from "next/navigation";
 import { SidebarMenuButton } from "@/components/ui/sidebar";
+import { logger } from "@untools/logger";
 
 const UserInfo: React.FC<{ user?: User | null; small?: boolean }> = ({
   user,
@@ -66,7 +67,7 @@ const AuthUserButton: React.FC<{
   );
 
   useShortcut("k", () => {
-    console.log("log out");
+    logger.log("log out");
     setLogoutDialogOpen(true);
   });
 

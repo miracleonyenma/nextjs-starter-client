@@ -36,17 +36,17 @@ const ProfileForm: React.FC<{ user?: User }> = ({ user }) => {
       email: Yup.string().email("Invalid email address").required("Required"),
     }),
     onSubmit: async (values) => {
-      console.log({ values });
+      logger.log({ values });
       if (file) {
         toast.promise(uploadToCloudinary(file), {
           loading: (() => {
             setLoading(true);
-            console.log(preview);
+            logger.log(preview);
 
             return "Uploading...";
           })(),
           success: (data) => {
-            console.log("🪵🪵🪵🪵🪵🪵🪵🪵 ~ uploadToCloudinary ~ data", data);
+            logger.log("🪵🪵🪵🪵🪵🪵🪵🪵 ~ uploadToCloudinary ~ data", data);
             setPreview(data.secure_url);
             setUserData({ ...userData, picture: data.secure_url });
             formik.setFieldValue("picture", data.secure_url);
@@ -74,7 +74,7 @@ const ProfileForm: React.FC<{ user?: User }> = ({ user }) => {
         return "Updating User...";
       })(),
       success: (data) => {
-        console.log("🪵🪵🪵🪵🪵 ~ handleAuth Register:", data);
+        logger.log("🪵🪵🪵🪵🪵 ~ handleAuth Register:", data);
         if (data?.updateUser) setUserData(data?.updateUser);
         return "User Updated Successfully";
       },

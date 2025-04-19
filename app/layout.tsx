@@ -5,8 +5,10 @@ import { Host_Grotesk } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import NextTopLoader from "nextjs-toploader";
-import "./globals.css";
 import Auth from "@/components/Auth";
+import "./globals.css";
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://example.com";
 
 const hostGrotesk = Host_Grotesk({
   variable: "--font-host-grotesk",
@@ -52,6 +54,7 @@ export const metadata: Metadata = {
     },
     description: APP_DESCRIPTION,
   },
+  metadataBase: new URL(APP_URL),
 };
 
 export default async function RootLayout({

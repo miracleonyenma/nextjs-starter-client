@@ -10,8 +10,6 @@ import { useEffect } from "react";
 const Auth: React.FC<{ user?: User | null }> = ({ user }) => {
   const { setUser } = useUserStore();
 
-  // const handleGet
-
   useEffect(() => {
     if (user) setUser(user);
     else {
@@ -21,7 +19,7 @@ const Auth: React.FC<{ user?: User | null }> = ({ user }) => {
       };
       handleGetMe();
     }
-  }, [user]);
+  }, [setUser, user]);
   return null;
 };
 
