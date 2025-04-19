@@ -1,34 +1,40 @@
 # Next.js Full-Stack Starter
 
-A production-ready Next.js 15.3 starter template with built-in authentication, UI components, and advanced features for rapid application development.
+A production-ready Next.js 15.3 starter template designed to work seamlessly with the [Express TypeScript GraphQL API Starter](https://github.com/miracleonyenma/express-ts-graphql-starter). This project includes built-in authentication, UI components, and advanced features for rapid full-stack application development.
 
-## Features
+![Next.js Starter](https://res.cloudinary.com/dmwfd0zhh/image/upload/v1713723535/next-starter-banner_olvetr.png)
+
+## 🌟 Features
 
 ### 🏗 Core Architecture
-- Next.js 15.3 with App Router
-- TypeScript support
+
+- **Next.js 15.3** with App Router
+- **TypeScript** support for type safety
 - Organized route groups for site and dashboard layouts
 - SEO-ready with OpenGraph images and manifests
 - Custom port configuration (3030)
 
 ### 🔐 Authentication & Security
-- Complete authentication system
+
+- **Complete authentication system**
   - Email/Password authentication
   - Google OAuth integration
   - Password reset flow
   - OTP verification
   - Session-based auth with encrypted cookies
 - Protected routes middleware
-- Secure API routes
+- Secure API routes with proxy capabilities
+- Token refresh handling
 - Role-based access control
 
 ### 🎨 UI/Components
-- Comprehensive UI component library:
+
+- **Comprehensive UI component library**:
   - Built on Radix UI primitives
-  - Tailwind CSS styling
+  - Tailwind CSS styling with v4 support
   - Shadcn-style component architecture
-  - Dark/light theme support
-- Pre-built components:
+  - Dark/light theme support via `next-themes`
+- **Pre-built components**:
   - App components (Header, Sidebar)
   - Authentication forms
   - Site components
@@ -36,35 +42,41 @@ A production-ready Next.js 15.3 starter template with built-in authentication, U
   - Responsive dialogs and drawers
 
 ### 📊 State & Data Management
-- Zustand for state management
-- GraphQL integration with code generation
-- Form handling (Formik + Yup)
+
+- **Zustand** for global state management
+- **GraphQL integration** with automatic code generation
+- Form handling with **Formik + Yup**
 - Custom data access layer (DAL)
 
 ### 🚀 Advanced Features
+
 - Cloudinary integration for file uploads
 - Mobile-responsive design
-- Custom hooks for media queries
+- Custom hooks for media queries and shortcuts
 - Loading states and animations
-- Toast notifications (Sonner)
-- Progress bar (nextjs-toploader)
-- Keyboard shortcuts
-- Share functionality
+- Toast notifications via **Sonner**
+- Progress bar via **nextjs-toploader**
+- Web Share API integration
 
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm/yarn/pnpm
+- [Express TypeScript GraphQL API Starter](https://github.com/miracleonyenma/express-ts-graphql-starter) (set up and running)
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
-git clone [repository-url]
+git clone https://github.com/yourusername/nextjs-starter-client.git
+cd nextjs-starter-client
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 # or
@@ -74,86 +86,194 @@ pnpm install
 ```
 
 3. Configure environment variables:
+
 ```bash
 cp .env.example .env.local
 ```
 
-4. Start the development server:
+4. Update the environment variables:
+
+```env
+# API
+NEXT_PUBLIC_BASE_API=http://localhost:5416
+NEXT_PUBLIC_GRAPHQL_API=http://localhost:5416/graphql
+API_KEY=your_api_key_here
+
+# Auth
+JWT_SECRET=your_jwt_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Cloudinary
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3030
+```
+
+5. Generate GraphQL types (requires the backend to be running):
+
+```bash
+npm run codegen
+```
+
+6. Start the development server:
+
 ```bash
 npm run dev
 ```
 
 The application will be available at `http://localhost:3030`
 
-### Environment Variables
+## 🔧 Integration with Express API Starter
 
-Required environment variables:
-- `NEXT_PUBLIC_API_URL`: Backend API URL
-- `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`: Cloudinary cloud name
-- `CLOUDINARY_API_KEY`: Cloudinary API key
-- `CLOUDINARY_API_SECRET`: Cloudinary API secret
-- `GOOGLE_CLIENT_ID`: Google OAuth client ID
-- `GOOGLE_CLIENT_SECRET`: Google OAuth client secret
-- `JWT_SECRET`: Secret for JWT signing
+This frontend is designed to work with the [Express TypeScript GraphQL API Starter](https://github.com/miracleonyenma/express-ts-graphql-starter). To connect them:
 
-## Project Structure
+1. Set up and run the Express API starter according to its instructions
+2. Make sure your `.env.local` file points to the correct API endpoint
+3. Generate GraphQL types using `npm run codegen`
+4. Verify the connection by attempting to login or register via the UI
+
+## 📁 Project Structure
 
 ```
-├── app/                    # Next.js app directory
-│   ├── (dashboard)/       # Dashboard routes
-│   ├── (site)/           # Public site routes
-│   ├── api/              # API routes
-│   └── lib/              # Shared server utilities
-├── components/           # React components
-│   ├── App/             # App-specific components
-│   ├── Auth/            # Authentication components
-│   ├── Site/            # Site components
-│   └── ui/              # Shared UI components
-├── hooks/               # Custom React hooks
-├── lib/                 # Client-side utilities
-├── public/             # Static assets
-├── store/              # State management
-├── types/              # TypeScript types
-└── utils/              # Shared utilities
+├── app/                      # Next.js app directory
+│   ├── (dashboard)/         # Dashboard routes (authenticated)
+│   ├── (site)/             # Public site routes
+│   ├── api/                # API route handlers
+│   ├── server/             # Server proxy routes
+│   ├── actions.ts          # Server actions
+│   ├── globals.css         # Global styles
+│   └── layout.tsx          # Root layout
+├── components/             # React components
+│   ├── App/               # App-specific components
+│   ├── Auth/              # Authentication components
+│   ├── Icon/              # Custom icon components
+│   ├── Profile/           # User profile components
+│   ├── Site/              # Site components
+│   └── ui/                # Shadcn UI components
+├── hooks/                 # Custom React hooks
+├── lib/                   # Shared libraries & utilities
+│   ├── dal.ts             # Data Access Layer
+│   ├── gqlClient.ts       # GraphQL client setup
+│   ├── session.ts         # Session management
+│   └── utils.ts           # Utility functions
+├── public/               # Static assets
+├── store/                # Zustand state stores
+├── types/                # TypeScript type definitions
+│   └── gql/              # Generated GraphQL types
+└── utils/                # Utility functions
+    ├── auth/             # Authentication utilities
+    ├── cloudinary/       # Cloudinary utilities
+    └── user/             # User management utilities
 ```
 
-## Development
+## 🛠️ Key Features Explained
 
-### Available Scripts
+### Server Proxy
 
-- `npm run dev` - Start development server
+The project includes a sophisticated server proxy (`app/server/[...slug]/route.ts`) that handles:
+
+- Forwarding requests to the backend API
+- Managing authentication headers
+- Automatic token refresh on expired tokens
+- Error handling and redirection
+
+### Authentication Flow
+
+The authentication system provides:
+
+- Registration with email verification
+- Login with email/password
+- Google OAuth integration
+- Secure session management
+- Protected routes via middleware
+- Token refresh mechanism
+
+### GraphQL Integration
+
+The project uses GraphQL for data fetching with:
+
+- Automatic type generation via `graphql-codegen`
+- Client-side and server-side GraphQL clients
+- Type-safe GraphQL operations
+
+## 📝 Available Scripts
+
+- `npm run dev` - Start development server on port 3030
 - `npm run build` - Build production bundle
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 - `npm run codegen` - Generate GraphQL types
 
-### Code Style
+## 🧩 Customization
 
-This project uses:
-- ESLint for code linting
-- Prettier for code formatting
-- TypeScript for type checking
+### Theming
 
-### VSCode Configuration
+The project uses Tailwind CSS for styling and next-themes for theme management:
 
-Recommended extensions are configured in `.vscode/extensions.json`
+```tsx
+// In app/layout.tsx
+<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+  {children}
+</ThemeProvider>
+```
 
-## Deployment
+### Adding New Components
 
-The project is optimized for deployment on Vercel. For other platforms, ensure:
+Follow the Shadcn UI approach for adding components:
 
-1. Environment variables are properly configured
-2. Build command is set to `npm run build`
-3. Node.js version is 18 or higher
+1. Create a new component in `components/ui/`
+2. Import and use Radix UI primitives
+3. Style with Tailwind CSS utility classes
 
-## Contributing
+### Protected Routes
+
+Add new protected route patterns in `utils/routePatterns.ts`:
+
+```typescript
+export const PROTECTED_PATTERNS = [
+  "/dashboard", 
+  "/account",
+  // Add your new protected route pattern here
+];
+```
+
+## 📚 Best Practices
+
+- Use Server Components for data fetching when possible
+- Use Client Components for interactive elements
+- Keep state management simple with Zustand
+- Use server actions for mutations
+- Follow the pattern of separating UI components from page components
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## License
+## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🙏 Acknowledgements
+
+- [Next.js](https://nextjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Shadcn UI](https://ui.shadcn.com)
+- [Radix UI](https://www.radix-ui.com/)
+- [GraphQL Code Generator](https://the-guild.dev/graphql/codegen)
+- [Zustand](https://github.com/pmndrs/zustand)
+- [Formik](https://formik.org/)
+- [Yup](https://github.com/jquense/yup)
+
+---
+
+Created by [Miracle Onyenma](https://github.com/miracleonyenma)
