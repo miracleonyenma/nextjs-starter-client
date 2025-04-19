@@ -6,7 +6,7 @@ import { useFormik } from "formik";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import * as Yup from "yup";
-import Loader from "../Loader";
+import Loader from "@/components/Loader";
 import Image from "next/image";
 import uploadToCloudinary from "@/utils/cloudinary/uploadToCloudinary";
 import useAuth from "@/hooks/useAuth";

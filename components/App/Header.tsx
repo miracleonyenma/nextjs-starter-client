@@ -3,8 +3,8 @@
 import Link from "next/link";
 import SiteLogo from "@/components/Site/Logo";
 import { useUserStore } from "@/store/useUserStore";
-import AuthUserButton from "../Auth/User/Button";
-import { SidebarTrigger } from "../ui/sidebar";
+import AuthUserButton from "@/components/Auth/User/Button";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const AppHeader = () => {
   const { user } = useUserStore();
