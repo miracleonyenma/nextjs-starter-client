@@ -1,4 +1,6 @@
-import { gqlServerClient } from "@/lib/gqlClient";
+// ./utils/auth/refreshToken.ts
+
+import { gqlServerClient } from "@/lib/gqlServerClient";
 import { Mutation, MutationRefreshTokenArgs } from "@/types/gql/graphql";
 
 const REFERSH_TOKEN_MUTATION = `#graphql

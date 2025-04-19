@@ -3,6 +3,7 @@
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { logger } from "@untools/logger";
+import { refreshTokenAction } from "@/app/actions";
 
 // Configure your remote API base URL
 const API_URL = process.env.NEXT_PUBLIC_BASE_API;
@@ -37,6 +38,60 @@ function filterAndForwardHeaders(headers: Headers) {
   return filteredHeaders;
 }
 
+// Helper function to check if response contains authentication errors
+function hasAuthError(responseBody: string): boolean {
+  if (!responseBody) return false;
+
+  try {
+    const parsedResponse = JSON.parse(responseBody);
+
+    // Check for GraphQL errors
+    if (parsedResponse.errors && Array.isArray(parsedResponse.errors)) {
+      // Look for common auth error patterns in any error message
+      const errorMessages = parsedResponse.errors.map(
+        (err: { message: string }) => (err.message || "").toLowerCase(),
+      );
+
+      const authErrorPatterns = [
+        "unable to authenticate",
+        "unauthenticated",
+        "unauthorized",
+        "invalid token",
+        "expired token",
+        "auth failed",
+        "not authenticated",
+        "authentication failed",
+        "jwt expired",
+        "invalid auth",
+        "auth required",
+        "not authorized",
+      ];
+
+      return errorMessages.some((message: string | string[]) =>
+        authErrorPatterns.some((pattern) => message.includes(pattern)),
+      );
+    }
+
+    // Check for REST API auth errors
+    if (parsedResponse.message) {
+      const message = parsedResponse.message.toLowerCase();
+      return (
+        message.includes("token") &&
+        (message.includes("expired") ||
+          message.includes("invalid") ||
+          message.includes("auth") ||
+          message.includes("unauthorized"))
+      );
+    }
+  } catch (e) {
+    logger.error("Error parsing response body:", e);
+    // If it's not valid JSON, it's not a GraphQL auth error
+    return false;
+  }
+
+  return false;
+}
+
 // Main handler function for all HTTP methods
 async function handler(req: NextRequest) {
   try {
@@ -64,11 +119,13 @@ async function handler(req: NextRequest) {
 
     // get accessToken
     const accessToken = cookieStore.get("accessToken")?.value;
+    const refreshToken = cookieStore.get("refreshToken")?.value;
 
     logger.log("🚀 ~ fullUrl: ", fullUrl);
 
     // Clone the request to safely read its body
     const requestClone = req.clone();
+    let originalBody: string | undefined;
 
     // Prepare headers with API key
     const headers: Record<string, string> = {
@@ -86,9 +143,11 @@ async function handler(req: NextRequest) {
       if (contentType?.includes("application/json")) {
         const jsonData = await requestClone.json();
         body = JSON.stringify(jsonData);
+        originalBody = body; // Store original body for potential retry
         headers["content-type"] = "application/json";
       } else {
         body = await requestClone.text();
+        originalBody = body;
       }
     }
 
@@ -107,16 +166,77 @@ async function handler(req: NextRequest) {
     });
 
     // Forward the request to the remote API
-    const response = await fetch(fullUrl, fetchOptions);
-
-    logger.log("🚀 ~ response status:", response.status);
-    logger.log(
-      "🚀 ~ response headers:",
-      Object.fromEntries(response.headers.entries())
-    );
+    let response = await fetch(fullUrl, fetchOptions);
 
     // Get the response content as text
-    const responseText = await response.text();
+    let responseText = await response.text();
+    logger.log("🚀 ~ response status:", response.status);
+
+    // Handle auth errors - both 401 status and error messages in response body
+    let tokenRefreshed = false;
+
+    if (response.status === 401 || (IS_GRAPHQL && hasAuthError(responseText))) {
+      logger.warn("Authentication error detected, attempting token refresh");
+
+      // Try to refresh the token
+      if (refreshToken) {
+        const refreshResult = await refreshTokenAction();
+
+        if (refreshResult.success) {
+          // Get the new access token
+          tokenRefreshed = true;
+          const newAccessToken = cookieStore.get("accessToken")?.value;
+
+          if (newAccessToken) {
+            logger.log(
+              "Token refreshed successfully, retrying original request",
+            );
+
+            // Update headers with new token
+            headers["Authorization"] = `Bearer ${newAccessToken}`;
+
+            // Recreate fetch options with the new token
+            const newFetchOptions: RequestInit = {
+              method: req.method,
+              headers,
+              // Only include body for methods that typically have one
+              ...(["POST", "PUT", "PATCH"].includes(req.method) && {
+                body: originalBody,
+              }),
+            };
+
+            // Retry the original request with the new token
+            response = await fetch(fullUrl, newFetchOptions);
+            responseText = await response.text();
+
+            logger.log("🚀 ~ Retry response status:", response.status);
+          }
+        } else {
+          logger.error("Token refresh failed:", refreshResult.error);
+          // Add redirect logic for invalid refresh token
+          if (
+            refreshResult.error?.includes("Invalid refresh token") ||
+            refreshResult.error?.includes("expired")
+          ) {
+            // Return a special response that tells the client to redirect
+            return new Response(
+              JSON.stringify({
+                error: "Authentication failed",
+                redirectTo: "/auth/logout",
+              }),
+              {
+                status: 401,
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-Auth-Redirect": "/auth/logout",
+                },
+              },
+            );
+          }
+        }
+      }
+    }
+
     logger.log("🚀 ~ response size:", responseText.length);
 
     // Filter response headers
@@ -140,6 +260,11 @@ async function handler(req: NextRequest) {
       }
     }
 
+    // Add a header to indicate token was refreshed (useful for client-side handling)
+    if (tokenRefreshed) {
+      responseHeaders["x-token-refreshed"] = "true";
+    }
+
     // Create the response with the appropriate status and headers
     return new Response(responseText, {
       status: response.status,
@@ -158,7 +283,7 @@ async function handler(req: NextRequest) {
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
   }
 }

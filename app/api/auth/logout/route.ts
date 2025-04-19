@@ -1,6 +1,7 @@
 // ./app/api/auth/logout/route.ts
 
-import { deleteSession } from "@/app/lib/session";
+import { deleteSession } from "@/lib/session";
+import { logger } from "@untools/logger";
 
 export async function GET() {
   try {
@@ -9,7 +10,7 @@ export async function GET() {
 
     return Response.json({ success: true });
   } catch (error) {
-    console.log("🚨🚨🚨🚨🚨🚨 ~ error", error);
+    logger.log("🚨🚨🚨🚨🚨🚨 ~ error", error);
     return new Response((error as Error).message, { status: 500 });
   }
 }
