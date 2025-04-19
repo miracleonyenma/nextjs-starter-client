@@ -5,10 +5,15 @@ import { SignJWT, jwtVerify } from "jose";
 import { User } from "@/types/gql/graphql";
 import { logger } from "@untools/logger";
 import { cookies } from "next/headers";
-import refreshToken from "@/utils/auth/refreshToken";
+import { refreshTokenAction } from "@/app/actions";
 
 const secretKey = process.env.SESSION_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
+export const expiresAt = {
+  threeDays: new Date(Date.now() + 1000 * 60),
+  sevenDays: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+  thirtyDays: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+};
 
 export async function encrypt(payload: User) {
   return new SignJWT({ id: payload.id, role: payload.roles })
@@ -44,7 +49,6 @@ export async function createSession({
   accessToken?: string;
   refreshToken?: string;
 }) {
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const session = await encrypt(user);
   const cookieStore = await cookies();
 
@@ -53,14 +57,14 @@ export async function createSession({
   cookieStore.set("session", session, {
     httpOnly: true,
     secure: true,
-    expires: expiresAt,
+    expires: expiresAt.sevenDays,
     sameSite: "lax",
     path: "/",
   });
 
   if (accessToken)
     (await cookies()).set("accessToken", accessToken, {
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 3 days
+      expires: expiresAt.threeDays, // 3 days
       httpOnly: true,
       secure: true,
       sameSite: "lax",
@@ -68,7 +72,7 @@ export async function createSession({
     });
   if (refreshToken)
     (await cookies()).set("refreshToken", refreshToken, {
-      expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+      expires: expiresAt.sevenDays, // 7 days
       httpOnly: true,
       secure: true,
       sameSite: "lax",
@@ -80,28 +84,17 @@ export async function createSession({
 }
 
 export async function updateSession() {
-  const session = (await cookies()).get("session")?.value;
-  const token = (await cookies()).get("refreshToken")?.value;
-
-  // refresh token
-  if (token && session) {
-    const data = await refreshToken(token);
-    if (!data.refreshToken.accessToken) {
-      return null;
-    }
-
-    const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
-    const cookieStore = await cookies();
-    cookieStore.set("session", session, {
-      httpOnly: true,
-      secure: true,
-      expires: expires,
-      sameSite: "lax",
-      path: "/",
-    });
+  // Since updateSession might be called from various contexts,
+  // delegate the actual work to the server action
+  try {
+    const result = await refreshTokenAction();
+    return result.success;
+  } catch (error) {
+    logger.error("Failed to update session:", error);
+    return false;
   }
 }
+
 export async function deleteSession() {
   // This function should only be called from a Server Action or Route Handler
   logger.warn("Deleting session");

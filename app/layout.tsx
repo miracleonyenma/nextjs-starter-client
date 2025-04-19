@@ -1,11 +1,14 @@
+// ./app/layout.tsx
+
 import type { Metadata } from "next";
 import { Host_Grotesk } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 import NextTopLoader from "nextjs-toploader";
-import "./globals.css";
-import { getUser } from "./lib/dal";
 import Auth from "@/components/Auth";
+import "./globals.css";
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://example.com";
 
 const hostGrotesk = Host_Grotesk({
   variable: "--font-host-grotesk",
@@ -51,6 +54,7 @@ export const metadata: Metadata = {
     },
     description: APP_DESCRIPTION,
   },
+  metadataBase: new URL(APP_URL),
 };
 
 export default async function RootLayout({
@@ -58,8 +62,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getUser();
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${hostGrotesk.variable}`}>
@@ -68,7 +70,7 @@ export default async function RootLayout({
           {children}
           <Toaster position="top-center" offset={"2rem"} theme="system" />
         </ThemeProvider>
-        <Auth user={user?.me} />
+        <Auth />
       </body>
     </html>
   );

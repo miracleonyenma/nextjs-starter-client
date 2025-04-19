@@ -1,4 +1,5 @@
-import { gqlClient, gqlServerClient } from "@/lib/gqlClient";
+import { gqlClient } from "@/lib/gqlClient";
+import { gqlServerClient } from "@/lib/gqlServerClient";
 import { AuthData, LoginInput, MutationLoginArgs } from "@/types/gql/graphql";
 
 const LOGIN_USER_QUERY = `#graphql

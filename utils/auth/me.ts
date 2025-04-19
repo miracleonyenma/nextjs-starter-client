@@ -1,3 +1,5 @@
+// ./utils/auth/me.ts
+
 import { Query } from "@/types/gql/graphql";
 import { gqlClient } from "@/lib/gqlClient";
 
