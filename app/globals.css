@@ -133,11 +133,14 @@
   .site-section > .wrapper {
     @apply mx-auto max-w-4xl;
   }
+  .app-section {
+    @apply p-4;
+  }
 }
 
 @layer components {
   .btn {
-    @apply shrink-0 inline-flex cursor-pointer w-fit items-center justify-center gap-2 rounded-xl border border-gray-300 bg-gray-200 px-4 py-3 font-bold text-gray-600 shadow-inner shadow-white transition-all hover:brightness-105 focus:outline-none focus:ring-4 focus:ring-gray-200 focus:ring-offset-2 focus:ring-offset-gray-50 active:scale-95 active:shadow-gray-300/80;
+    @apply inline-flex w-fit shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl border border-gray-300 bg-gray-200 px-4 py-3 font-bold text-gray-600 shadow-inner shadow-white transition-all hover:brightness-105 focus:ring-4 focus:ring-gray-200 focus:ring-offset-2 focus:ring-offset-gray-50 focus:outline-none active:scale-95 active:shadow-gray-300/80;
     @apply dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:shadow-gray-600 dark:ring-offset-gray-950 dark:focus:ring-gray-600 dark:focus:ring-offset-gray-950 dark:active:shadow-gray-900;
     @apply transition-all;
   }
@@ -227,7 +230,7 @@
   }
 
   .tag {
-    @apply inline-flex w-fit items-center justify-center gap-2 rounded-xl border border-gray-300 bg-gray-200 px-2.5 py-1.5 font-semibold text-gray-600 shadow-inner shadow-white transition-all hover:brightness-105 focus:outline-none focus:ring focus:ring-gray-200 focus:ring-offset-2 focus:ring-offset-gray-50 active:scale-95 active:shadow-gray-300/80;
+    @apply inline-flex w-fit items-center justify-center gap-2 rounded-xl border border-gray-300 bg-gray-200 px-2.5 py-1.5 font-semibold text-gray-600 shadow-inner shadow-white transition-all hover:brightness-105 focus:ring focus:ring-gray-200 focus:ring-offset-2 focus:ring-offset-gray-50 focus:outline-none active:scale-95 active:shadow-gray-300/80;
     @apply dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:shadow-gray-600 dark:ring-offset-gray-950 dark:focus:ring-gray-600 dark:focus:ring-offset-gray-950 dark:active:shadow-gray-900;
     @apply transition-all;
   }
@@ -241,15 +244,15 @@
   }
 
   .tag.success {
-    @apply bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-200 border-green-200 dark:border-green-700;
+    @apply border-green-200 bg-green-100 text-green-800 dark:border-green-700 dark:bg-green-700 dark:text-green-200;
   }
 
   .tag.warning {
-    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-200 border-yellow-200 dark:border-yellow-700;
+    @apply border-yellow-200 bg-yellow-100 text-yellow-800 dark:border-yellow-700 dark:bg-yellow-700 dark:text-yellow-200;
   }
 
   .tag.danger {
-    @apply bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-200 border-red-200 dark:border-red-700;
+    @apply border-red-200 bg-red-100 text-red-800 dark:border-red-700 dark:bg-red-700 dark:text-red-200;
   }
 
   .icon {
@@ -257,7 +260,7 @@
   }
 
   .form-input {
-    @apply relative w-full rounded-xl border border-gray-200 bg-gray-100 px-4 py-2 font-semibold text-gray-600 shadow-inner shadow-white focus-within:border-blue-500 focus-within:outline-none focus-within:ring focus-within:ring-blue-500  focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-offset-2 focus:ring-blue-300;
+    @apply relative w-full rounded-xl border border-gray-200 bg-gray-100 px-4 py-2 font-semibold text-gray-600 shadow-inner shadow-white focus-within:border-blue-500 focus-within:ring focus-within:ring-blue-500 focus-within:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-300 focus:ring-offset-2 focus:outline-none;
     @apply dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:shadow-gray-700 dark:focus:ring-offset-gray-900;
     @apply transition-all;
   }
@@ -272,7 +275,7 @@
   }
 
   .form-input.cont .form-input {
-    @apply border-none bg-transparent shadow-none outline-none ring-0;
+    @apply border-none bg-transparent shadow-none ring-0 outline-none;
   }
 
   .form-input input {
@@ -298,7 +301,7 @@
   }
 
   .form-input > input {
-    @apply w-full border-none bg-transparent p-3 px-2 focus:outline-none focus:ring-0;
+    @apply w-full border-none bg-transparent p-3 px-2 focus:ring-0 focus:outline-none;
   }
 
   .form-input:has(~ .form-error) > .icon {
@@ -310,7 +313,7 @@
   }
 
   .form-info {
-    @apply flex gap-1 items-center text-sm text-gray-400 dark:text-gray-500;
+    @apply flex items-center gap-1 text-sm text-gray-400 dark:text-gray-500;
   }
 
   .divider {
@@ -318,9 +321,9 @@
   }
 
   .card {
-    @apply rounded-xl border-gray-100 p-4 border-1 ring-1 ring-offset-4 ring-offset-gray-200 ring-gray-300 bg-white;
-    @apply dark:border-gray-700 dark:ring-gray-800 dark:bg-gray-800 dark:ring-offset-gray-900;
-    @apply hover:ring-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800;
+    @apply rounded-xl border-1 border-gray-100 bg-white p-4 ring-1 ring-gray-300 ring-offset-4 ring-offset-gray-200;
+    @apply dark:border-gray-700 dark:bg-gray-800 dark:ring-gray-800 dark:ring-offset-gray-900;
+    @apply hover:bg-gray-50 hover:ring-gray-300 dark:hover:bg-gray-800;
     @apply transition-all;
   }
 
@@ -329,7 +332,7 @@
   }
 
   .site-header .wrapper {
-    @apply w-full flex items-center gap-4 justify-between mx-auto max-w-5xl;
+    @apply mx-auto flex w-full max-w-5xl items-center justify-between gap-4;
   }
 
   .user-btn {
@@ -337,11 +340,11 @@
   }
 
   .user-btn .img-cont {
-    @apply text-sm flex items-center gap-2 text-gray-400 dark:text-gray-500;
+    @apply flex items-center gap-2 text-sm text-gray-400 dark:text-gray-500;
   }
 
   .user-btn .img-cont img {
-    @apply rounded-full shadow border border-gray-200 dark:border-gray-700;
+    @apply rounded-full border border-gray-200 shadow dark:border-gray-700;
   }
 }
 
