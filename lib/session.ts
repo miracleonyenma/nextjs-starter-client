@@ -10,9 +10,9 @@ import { refreshTokenAction } from "@/app/actions";
 const secretKey = process.env.SESSION_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
 export const expiresAt = {
-  threeDays: new Date(Date.now() + 1000 * 60),
-  sevenDays: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-  thirtyDays: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+  threeDays: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3), // 3 days
+  sevenDays: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+  thirtyDays: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days
 };
 
 export async function encrypt(payload: User) {
