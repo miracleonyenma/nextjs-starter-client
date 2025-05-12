@@ -91,7 +91,7 @@ ${error.stack ?? "N/A"}
                 <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700 focus:outline-none">
                   Technical Details
                 </summary>
-                <pre className="mt-2 overflow-auto rounded bg-gray-50 p-4 text-xs whitespace-pre-wrap text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                <pre className="mt-2 max-w-[calc(100vw-8rem)] overflow-auto rounded bg-gray-50 p-4 text-xs whitespace-pre-wrap text-gray-600 dark:bg-gray-800 dark:text-gray-300">
                   {error.stack}
                 </pre>
               </details>
@@ -105,7 +105,7 @@ ${error.stack ?? "N/A"}
                 <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700 focus:outline-none">
                   Digest
                 </summary>
-                <pre className="mt-2 overflow-auto rounded bg-gray-50 p-4 text-xs whitespace-pre-wrap text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+                <pre className="mt-2 max-w-[calc(100vw-8rem)] overflow-auto rounded bg-gray-50 p-4 text-xs whitespace-pre-wrap text-gray-600 dark:bg-gray-800 dark:text-gray-300">
                   {error.digest}
                 </pre>
               </details>

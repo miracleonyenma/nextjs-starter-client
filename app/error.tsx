@@ -14,6 +14,8 @@ type ErrorProps = {
   reset: () => void;
 };
 
+const SUPPORT_MAIL = process.env.NEXT_PUBLIC_SUPPORT_MAIL || "";
+
 export default function Error({ error, reset }: ErrorProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -45,6 +47,7 @@ export default function Error({ error, reset }: ErrorProps) {
 
       // user data info
       metadata.email = user?.email || "";
+      metadata.userId = user?.id || "";
 
       // Navigation data
       metadata.url = window.location.href;
@@ -94,9 +97,6 @@ export default function Error({ error, reset }: ErrorProps) {
       metadata.localStorage = localStorage.length.toString();
       metadata.sessionStorage = sessionStorage.length.toString();
       metadata.cookiesEnabled = navigator.cookieEnabled.toString();
-      // persit:root values
-      metadata.reduxPersistRoot = localStorage.getItem("persist:root") || "";
-      metadata.userData = localStorage.getItem("userData") || "";
 
       // Memory info if available
       if ("memory" in performance) {
@@ -167,7 +167,8 @@ ${metadata.errorStack || "No stack trace available"}
 - **Connection Type:** ${metadata.connectionType || "N/A"}
 
 ## User App Data
-- **Pay ID:** ${metadata.payId || "N/A"}
+- **User ID:** ${metadata.userId || "N/A"}
+- **Email:** ${metadata.email || "N/A"}
       `;
 
       // markdown to html
@@ -179,6 +180,7 @@ ${metadata.errorStack || "No stack trace available"}
           subject: `Client Error: ${error.name} in ${pathname}`,
           content: content,
           metadata: metadata,
+          to: [SUPPORT_MAIL],
         });
 
         logger.log({ mail, errorInfo: "Error notification sent" });
@@ -193,7 +195,7 @@ ${metadata.errorStack || "No stack trace available"}
 
     // Send the alert
     sendAlert();
-  }, [user?.email, error, pathname, searchParams]);
+  }, [user?.email, error, pathname, searchParams, user?.id]);
 
   return <ErrorPage error={error} resetError={reset} />;
 }
