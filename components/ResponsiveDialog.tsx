@@ -1,15 +1,16 @@
 "use client";
 
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, useState } from "react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogDescription,
+//   DialogHeader,
+//   DialogTitle,
+//   DialogTrigger,
+// } from "@/components/ui/dialog";
 import {
   Drawer,
   DrawerClose,
@@ -20,57 +21,87 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { ReusableDialog } from "@/components/Dialog";
 
-const ResponsiveDialog: React.FC<{
+export interface ResponsiveDialogProps {
   title?: string;
   description?: string;
   drawerClose?: ReactNode;
   trigger?: ReactNode;
   children?: ReactNode;
-  openPrompt?: boolean;
-}> = ({ children, trigger, openPrompt, title, description, drawerClose }) => {
-  const [open, setOpen] = useState(openPrompt);
+  open?: boolean;
+  setOpen?: (value: boolean) => void;
+  onConfirm?: () => void;
+  cancelText?: string;
+  confirmText?: string;
+  width?: string;
+}
+
+const ResponsiveDialog: React.FC<ResponsiveDialogProps> = ({
+  children,
+  trigger,
+  open: externalOpen,
+  setOpen: externalSetOpen,
+  title = "Heads Up!",
+  description = "Here's some important information or action you need to review and take",
+  drawerClose,
+  onConfirm,
+  cancelText = "Cancel",
+  confirmText = "Continue",
+  width = "sm:max-w-[425px]",
+}) => {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled =
+    externalOpen !== undefined && externalSetOpen !== undefined;
+  const open = isControlled ? externalOpen : internalOpen;
+  const setOpen = isControlled ? externalSetOpen : setInternalOpen;
+
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  useEffect(() => {
-    setOpen(openPrompt);
-  }, [openPrompt]);
+  const handleConfirm = () => {
+    if (onConfirm) {
+      onConfirm();
+    }
+    setOpen(false);
+  };
 
   if (isDesktop) {
     return (
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>{trigger}</DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{title || "Heads Up!"}</DialogTitle>
-            <DialogDescription>
-              {description ||
-                "Here's some important information or action you need to review and take"}
-            </DialogDescription>
-          </DialogHeader>
-          {children}
-        </DialogContent>
-      </Dialog>
+      <ReusableDialog
+        open={open}
+        setOpen={setOpen}
+        onConfirm={onConfirm}
+        title={title}
+        description={description}
+        cancelText={cancelText}
+        confirmText={confirmText}
+        width={width}
+        trigger={trigger}
+        withAnimation={true}
+      >
+        {children}
+      </ReusableDialog>
     );
   }
 
   return (
     <Drawer shouldScaleBackground open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+      {trigger && <DrawerTrigger asChild>{trigger}</DrawerTrigger>}
       <DrawerContent>
         <DrawerHeader className="text-left">
-          <DrawerTitle>{title || "Heads Up!"}</DrawerTitle>
-          <DrawerDescription>
-            {description ||
-              "Here's some important information or action you need to review and take"}
-          </DrawerDescription>
+          <DrawerTitle>{title}</DrawerTitle>
+          <DrawerDescription>{description}</DrawerDescription>
         </DrawerHeader>
         <div className="px-4">{children}</div>
-        <DrawerFooter className="flex flex-row gap-4">
+        <DrawerFooter className="flex flex-row justify-between gap-4">
           <DrawerClose asChild>
-            {drawerClose || <button className="btn">Cancel</button>}
+            {drawerClose || (
+              <button className="btn secondary">{cancelText}</button>
+            )}
           </DrawerClose>
+          <button onClick={handleConfirm} className="btn primary">
+            {confirmText}
+          </button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

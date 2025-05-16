@@ -38,6 +38,8 @@ export type LoginInput = {
 
 export type Meta = {
   __typename?: 'Meta';
+  hasNextPage?: Maybe<Scalars['Boolean']['output']>;
+  hasPrevPage?: Maybe<Scalars['Boolean']['output']>;
   limit?: Maybe<Scalars['Int']['output']>;
   page?: Maybe<Scalars['Int']['output']>;
   pages?: Maybe<Scalars['Int']['output']>;
@@ -178,7 +180,9 @@ export type QueryUserArgs = {
 
 
 export type QueryUsersArgs = {
+  filters?: InputMaybe<UserFiltersInput>;
   pagination?: InputMaybe<Pagination>;
+  sort?: InputMaybe<SortInput>;
 };
 
 export type RefreshPayload = {
@@ -196,6 +200,7 @@ export type RegisterInput = {
   firstName: Scalars['String']['input'];
   lastName: Scalars['String']['input'];
   password: Scalars['String']['input'];
+  phone?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Role = {
@@ -208,10 +213,21 @@ export type SendOtpInput = {
   email: Scalars['String']['input'];
 };
 
+export enum SortDirection {
+  Asc = 'asc',
+  Desc = 'desc'
+}
+
+export type SortInput = {
+  by?: InputMaybe<Scalars['String']['input']>;
+  direction?: InputMaybe<SortDirection>;
+};
+
 export type UpdateUserInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   lastName?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
   picture?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -222,6 +238,8 @@ export type User = {
   firstName?: Maybe<Scalars['String']['output']>;
   id?: Maybe<Scalars['ID']['output']>;
   lastName?: Maybe<Scalars['String']['output']>;
+  phone?: Maybe<Scalars['String']['output']>;
+  phoneVerified?: Maybe<Scalars['Boolean']['output']>;
   picture?: Maybe<Scalars['String']['output']>;
   roles?: Maybe<Array<Maybe<Role>>>;
 };
@@ -230,6 +248,12 @@ export type UserData = {
   __typename?: 'UserData';
   data?: Maybe<Array<Maybe<User>>>;
   meta?: Maybe<Meta>;
+};
+
+export type UserFiltersInput = {
+  emailVerified?: InputMaybe<Scalars['Boolean']['input']>;
+  role?: InputMaybe<Scalars['ID']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type VerifyOtpInput = {

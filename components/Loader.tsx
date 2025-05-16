@@ -1,7 +1,10 @@
 import LoaderIcon from "@/components/Icon/Loader";
 import { AnimatePresence, motion } from "motion/react";
 
-const Loader: React.FC<{ loading: boolean }> = ({ loading }) => {
+const Loader: React.FC<{ loading: boolean; className?: string }> = ({
+  loading,
+  className,
+}) => {
   return (
     <AnimatePresence>
       {loading && (
@@ -14,7 +17,7 @@ const Loader: React.FC<{ loading: boolean }> = ({ loading }) => {
             scale: 0,
           }}
         >
-          <LoaderIcon className="icon animate-spin" />
+          <LoaderIcon className={`icon animate-spin ${className}`} />
         </motion.div>
       )}
     </AnimatePresence>
