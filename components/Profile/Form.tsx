@@ -1,3 +1,5 @@
+// ./components/Profile/Form.tsx
+
 "use client";
 
 import { UpdateUserInput, User } from "@/types/gql/graphql";
@@ -12,7 +14,10 @@ import uploadToCloudinary from "@/utils/cloudinary/uploadToCloudinary";
 import useAuth from "@/hooks/useAuth";
 import { logger } from "@untools/logger";
 
-const ProfileForm: React.FC<{ user?: User }> = ({ user }) => {
+const ProfileForm: React.FC<{ user?: User; isAdmin?: boolean }> = ({
+  user,
+  isAdmin,
+}) => {
   const { handleGetMe } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | undefined>(user);
@@ -25,6 +30,7 @@ const ProfileForm: React.FC<{ user?: User }> = ({ user }) => {
       firstName: userData?.firstName,
       lastName: userData?.lastName,
       email: userData?.email,
+      phone: userData?.phone,
     },
     validationSchema: Yup.object({
       firstName: Yup.string()
@@ -34,6 +40,7 @@ const ProfileForm: React.FC<{ user?: User }> = ({ user }) => {
         .max(20, "Must be 20 characters or less")
         .required("Required"),
       email: Yup.string().email("Invalid email address").required("Required"),
+      phone: Yup.string().min(10, "Must be 10 digits").optional().nullable(),
     }),
     onSubmit: async (values) => {
       logger.log({ values });
@@ -68,23 +75,29 @@ const ProfileForm: React.FC<{ user?: User }> = ({ user }) => {
   });
 
   const handleUpdateUser = (values: UpdateUserInput) => {
-    toast.promise(updateUser(values), {
-      loading: (() => {
-        setLoading(true);
-        return "Updating User...";
-      })(),
-      success: (data) => {
-        logger.log("🪵🪵🪵🪵🪵 ~ handleAuth Register:", data);
-        if (data?.updateUser) setUserData(data?.updateUser);
-        return "User Updated Successfully";
+    toast.promise(
+      updateUser({
+        ...(isAdmin && { id: user?.id }),
+        input: values,
+      }),
+      {
+        loading: (() => {
+          setLoading(true);
+          return "Updating User...";
+        })(),
+        success: (data) => {
+          logger.log("🪵🪵🪵🪵🪵 ~ handleAuth Register:", data);
+          if (data?.updateUser) setUserData(data?.updateUser);
+          return "User Updated Successfully";
+        },
+        error: (error) => {
+          return error.message;
+        },
+        finally: () => {
+          setLoading(false);
+        },
       },
-      error: (error) => {
-        return error.message;
-      },
-      finally: () => {
-        setLoading(false);
-      },
-    });
+    );
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -223,6 +236,25 @@ const ProfileForm: React.FC<{ user?: User }> = ({ user }) => {
             </div>
           ) : null}
         </div>
+        <div className="form-control flex grow flex-col gap-2">
+          <label htmlFor="firstName">Phone</label>
+          <div className="form-input">
+            <input
+              aria-label="Phone"
+              id="phone"
+              type="text"
+              placeholder="Phone"
+              className="form-input"
+              {...formik.getFieldProps("phone")}
+            />
+          </div>
+          {formik.touched.phone && formik.errors.phone ? (
+            <div className="form-error">
+              {/* <Danger variant="Bulk" className="icon h-4 w-4" /> */}
+              <span className="dark:text-red-200">{formik.errors.phone}</span>
+            </div>
+          ) : null}
+        </div>
         <div className="action-cont">
           <button disabled={loading} className="btn primary grow">
             <span>{loading ? "Updating..." : "Update"}</span>
@@ -232,7 +264,9 @@ const ProfileForm: React.FC<{ user?: User }> = ({ user }) => {
       </div>
     </form>
   ) : (
-    <Loader loading={true} />
+    <div className="flex h-full min-h-[calc(100vh-24rem)] w-full items-center justify-center">
+      <Loader loading={true} />
+    </div>
   );
 };
 

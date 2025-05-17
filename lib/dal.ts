@@ -5,10 +5,11 @@ import { cookies, headers } from "next/headers";
 import { decrypt } from "@/lib/session"; // Remove deleteSession import
 import { cache } from "react";
 import { redirect } from "next/navigation";
-import { Query } from "@/types/gql/graphql";
+import { Query, QueryUserArgs } from "@/types/gql/graphql";
 import { ME_QUERY } from "@/utils/auth/me";
 import { logger } from "@untools/logger";
 import { executeServerGraphQL } from "./gqlServerClient";
+import { GET_USER_QUERY } from "@/utils/user";
 
 // Simplified route check - let middleware handle most redirects
 const PROTECTED_PATTERNS = ["/dashboard"];
@@ -44,7 +45,37 @@ export const verifySession = cache(async () => {
   return { isAuth: false, user: null, accessToken: null };
 });
 
-export const getUser = cache(async () => {
+export const getUser = cache(async (variables: QueryUserArgs) => {
+  const session = await verifySession();
+  const currentPath = (await headers()).get("x-pathname");
+
+  if (currentPath?.includes("logout")) {
+    return null;
+  }
+
+  if (!session?.isAuth) return null;
+
+  try {
+    const user = await executeServerGraphQL<Pick<Query, "user">, QueryUserArgs>(
+      {
+        query: GET_USER_QUERY,
+        variables,
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+        shouldRedirectOnFailure: true,
+      },
+    );
+
+    return user;
+  } catch (error) {
+    logger.error("Error getting user:", error);
+
+    return null;
+  }
+});
+
+export const getMe = cache(async () => {
   const session = await verifySession();
   const currentPath = (await headers()).get("x-pathname");
 

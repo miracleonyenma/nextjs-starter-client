@@ -1,4 +1,4 @@
-import { getUser } from "@/lib/dal";
+import { getMe } from "@/lib/dal";
 import ProfileForm from "@/components/Profile/Form";
 import { logger } from "@untools/logger";
 
@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 const AccountProfile = async () => {
   try {
-    const user = (await getUser())?.me;
+    const user = (await getMe())?.me;
     return (
       <div className="wrapper p-4 lg:p-8">
         <ProfileForm user={user || undefined} />
