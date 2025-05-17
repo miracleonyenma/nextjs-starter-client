@@ -82,6 +82,7 @@ export type MutationDeleteUserArgs = {
 
 export type MutationGoogleAuthArgs = {
   code: Scalars['String']['input'];
+  redirect_uri?: InputMaybe<Scalars['String']['input']>;
 };
 
 
