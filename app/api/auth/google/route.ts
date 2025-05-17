@@ -1,3 +1,5 @@
+// ./app/api/auth/google/route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { handleGetGoogleSession } from "@/utils/auth/google/server";
 import { logger } from "@untools/logger";
@@ -5,6 +7,7 @@ import { createSession } from "@/lib/session";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
+const REDIRECT_URI = `${APP_URL}/api/auth/google`;
 
 const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams;
@@ -21,7 +24,10 @@ const GET = async (request: NextRequest) => {
   }
 
   try {
-    const res = await handleGetGoogleSession({ code });
+    const res = await handleGetGoogleSession({
+      code,
+      redirect_uri: REDIRECT_URI,
+    });
     logger.log("🌴🌴🌴🌴🌴 ~ res", res);
 
     const googleAuth = res?.googleAuth;
@@ -29,6 +35,16 @@ const GET = async (request: NextRequest) => {
     // create session here
     if (googleAuth?.user) {
       logger.info("Creating session for user:", googleAuth?.user);
+
+      // check if user has admin or developer role
+      const isAllowed = googleAuth?.user?.roles?.some(
+        (role) => role?.name === "admin" || role?.name === "developer",
+      );
+
+      if (!isAllowed) {
+        throw new Error("User is not allowed to access site");
+      }
+
       await createSession({
         user: googleAuth?.user,
         accessToken: googleAuth?.accessToken || undefined,
