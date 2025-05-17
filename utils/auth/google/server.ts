@@ -4,8 +4,8 @@ import { gqlServerClient } from "@/lib/gqlServerClient";
 import { AuthData, MutationGoogleAuthArgs } from "@/types/gql/graphql";
 
 const GOOGLE_AUTH_QUERY = `#graphql
-mutation GoogleAuth($code: String!, $redirectUrl: String!) {
-  googleAuth(code: $code, redirectUrl: $redirectUrl) {
+mutation GoogleAuth($code: String!, $redirect_uri: String!) {
+  googleAuth(code: $code, redirect_uri: $redirect_uri) {
     accessToken
     refreshToken
     user {
