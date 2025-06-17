@@ -36,14 +36,14 @@ const GET = async (request: NextRequest) => {
     if (googleAuth?.user) {
       logger.info("Creating session for user:", googleAuth?.user);
 
-      // check if user has admin or developer role
-      const isAllowed = googleAuth?.user?.roles?.some(
-        (role) => role?.name === "admin" || role?.name === "developer",
-      );
+      // // check if user has admin or developer role
+      // const isAllowed = googleAuth?.user?.roles?.some(
+      //   (role) => role?.name === "admin" || role?.name === "developer",
+      // );
 
-      if (!isAllowed) {
-        throw new Error("User is not allowed to access site");
-      }
+      // if (!isAllowed) {
+      //   throw new Error("User is not allowed to access site");
+      // }
 
       await createSession({
         user: googleAuth?.user,
