@@ -1,4 +1,4 @@
-import { AnimatePresence, AnimationProps, motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import * as Dialog from "toldo";
 import React from "react";
 
@@ -37,7 +37,7 @@ export const ReusableDialog: React.FC<DialogProps> = ({
   const isOpen = isControlled ? open : internalOpen;
   const setIsOpen = isControlled ? setOpen : setInternalOpen;
 
-  const variants: { [key: string]: AnimationProps } = {
+  const variants = {
     overlay: {
       initial: { opacity: 0 },
       animate: { opacity: 1 },
@@ -76,7 +76,7 @@ export const ReusableDialog: React.FC<DialogProps> = ({
                 <Dialog.Overlay className="fixed top-0 left-0 z-30 h-full w-full">
                   <motion.div
                     className="fixed inset-0 bg-black/40"
-                    {...variants.overlay}
+                    variants={variants.overlay}
                   />
                 </Dialog.Overlay>
               )}
@@ -88,7 +88,7 @@ export const ReusableDialog: React.FC<DialogProps> = ({
                 >
                   <motion.div
                     className="flex-col overflow-hidden rounded-xl border border-gray-200 bg-gray-100 sm:w-full dark:border-gray-700 dark:bg-gray-800"
-                    {...variants.content}
+                    variants={variants.content}
                   >
                     <Dialog.Title className="px-6 pt-5 text-lg font-semibold dark:text-gray-200">
                       {title}
