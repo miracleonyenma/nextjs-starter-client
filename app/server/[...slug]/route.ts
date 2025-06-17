@@ -6,7 +6,7 @@ import { logger } from "@untools/logger";
 import { refreshTokenAction } from "@/app/actions";
 
 // Configure your remote API base URL
-const API_URL = process.env.NEXT_PUBLIC_BASE_API;
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const API_KEY = process.env.API_KEY;
 const GRAPHQL_API = process.env.NEXT_PUBLIC_GRAPHQL_API;
 
@@ -122,10 +122,7 @@ async function handler(req: NextRequest) {
     const refreshToken = cookieStore.get("refreshToken")?.value;
 
     logger.log("🚀 ~ fullUrl: ", fullUrl);
-
-    // Clone the request to safely read its body
-    const requestClone = req.clone();
-    let originalBody: string | undefined;
+    logger.log({ accessToken });
 
     // Prepare headers with API key
     const headers: Record<string, string> = {
@@ -134,39 +131,62 @@ async function handler(req: NextRequest) {
       ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
     };
 
-    // Process request body for POST, PUT, PATCH
-    let body;
-    if (["POST", "PUT", "PATCH"].includes(req.method)) {
-      const contentType = req.headers.get("content-type");
+    // Handle different content types for request body
+    let body: string | ArrayBuffer = "";
+    let bodyBuffer: ArrayBuffer | null = null;
+    const contentType = req.headers.get("content-type");
 
-      // Handle different content types appropriately
-      if (contentType?.includes("application/json")) {
+    if (["POST", "PUT", "PATCH"].includes(req.method)) {
+      if (contentType?.includes("multipart/form-data")) {
+        // For multipart/form-data (file uploads), read as ArrayBuffer to preserve binary data
+        // This allows us to retry requests if needed
+        bodyBuffer = await req.arrayBuffer();
+        body = bodyBuffer;
+
+        // Keep the original content-type with boundary
+        const originalContentType = req.headers.get("content-type");
+        if (originalContentType) {
+          headers["content-type"] = originalContentType;
+        }
+      } else if (contentType?.includes("application/json")) {
+        // For JSON data, clone and parse normally
+        const requestClone = req.clone();
         const jsonData = await requestClone.json();
         body = JSON.stringify(jsonData);
-        originalBody = body; // Store original body for potential retry
         headers["content-type"] = "application/json";
       } else {
+        // For other content types, treat as text
+        const requestClone = req.clone();
         body = await requestClone.text();
-        originalBody = body;
       }
     }
 
-    // Prepare the fetch options
-    const fetchOptions: RequestInit = {
-      method: req.method,
-      headers,
-      // Only include body for methods that typically have one
-      ...(["POST", "PUT", "PATCH"].includes(req.method) && { body }),
+    // Create a function to make the request with given auth token
+    const makeRequest = async (authToken?: string) => {
+      const requestHeaders: Record<string, string> = {
+        ...headers,
+        ...(authToken && { Authorization: `Bearer ${authToken}` }),
+      };
+
+      const fetchOptions: RequestInit = {
+        method: req.method,
+        headers: requestHeaders,
+        // Only include body for methods that typically have one
+        ...(["POST", "PUT", "PATCH"].includes(req.method) && { body }),
+      };
+
+      logger.log("🚀 ~ fetchOptions: ", {
+        method: fetchOptions.method,
+        headers: Object.keys(fetchOptions.headers || {}),
+        hasBody: !!body,
+        contentType: requestHeaders["content-type"],
+      });
+
+      return await fetch(fullUrl, fetchOptions);
     };
 
-    logger.log("🚀 ~ fetchOptions: ", {
-      method: fetchOptions.method,
-      headers: fetchOptions.headers,
-      bodyLength: body ? body.length : 0,
-    });
-
     // Forward the request to the remote API
-    let response = await fetch(fullUrl, fetchOptions);
+    let response = await makeRequest(accessToken);
 
     // Get the response content as text
     let responseText = await response.text();
@@ -190,23 +210,33 @@ async function handler(req: NextRequest) {
           if (newAccessToken) {
             logger.log(
               "Token refreshed successfully, retrying original request",
+              { newAccessToken },
             );
 
-            // Update headers with new token
-            headers["Authorization"] = `Bearer ${newAccessToken}`;
+            // For file uploads, we can reuse the ArrayBuffer
+            // since we stored it earlier
+            let retryBody = body;
 
-            // Recreate fetch options with the new token
-            const newFetchOptions: RequestInit = {
+            if (contentType?.includes("multipart/form-data") && bodyBuffer) {
+              // Use the stored ArrayBuffer for retry
+              retryBody = bodyBuffer;
+            }
+
+            // Retry the original request with the new token
+            const retryHeaders = {
+              ...headers,
+              Authorization: `Bearer ${newAccessToken}`,
+            };
+
+            const retryFetchOptions: RequestInit = {
               method: req.method,
-              headers,
-              // Only include body for methods that typically have one
+              headers: retryHeaders,
               ...(["POST", "PUT", "PATCH"].includes(req.method) && {
-                body: originalBody,
+                body: retryBody,
               }),
             };
 
-            // Retry the original request with the new token
-            response = await fetch(fullUrl, newFetchOptions);
+            response = await fetch(fullUrl, retryFetchOptions);
             responseText = await response.text();
 
             logger.log("🚀 ~ Retry response status:", response.status);

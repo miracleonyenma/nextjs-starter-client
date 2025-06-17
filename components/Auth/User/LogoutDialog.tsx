@@ -1,4 +1,4 @@
-import { AnimatePresence, AnimationProps, motion } from "framer-motion";
+import { AnimatePresence, motion } from "motion/react";
 import * as Dialog from "toldo";
 
 export const AuthUserLogoutDialog: React.FC<{
@@ -6,7 +6,7 @@ export const AuthUserLogoutDialog: React.FC<{
   setOpen: (value: boolean) => void;
   canProceed?: (value: boolean) => void;
 }> = ({ open, setOpen, canProceed }) => {
-  const variants: { [key: string]: AnimationProps } = {
+  const variants = {
     overlay: {
       initial: { opacity: 0 },
       animate: { opacity: 1 },
@@ -29,20 +29,20 @@ export const AuthUserLogoutDialog: React.FC<{
       <Dialog.Portal forceMount>
         <AnimatePresence mode="popLayout">
           {open && (
-            <Dialog.Overlay className="fixed left-0 z-30 top-0 h-full w-full">
+            <Dialog.Overlay className="fixed top-0 left-0 z-30 h-full w-full">
               <motion.div
                 className="fixed inset-0 bg-black/40"
-                {...variants.overlay}
+                variants={variants.overlay}
               />
             </Dialog.Overlay>
           )}
         </AnimatePresence>
         <AnimatePresence mode="popLayout">
           {open && (
-            <Dialog.Content className="fixed left-1/2 top-1/2 z-40 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2">
+            <Dialog.Content className="fixed top-1/2 left-1/2 z-40 max-h-[85vh] w-[90vw] max-w-[450px] -translate-x-1/2 -translate-y-1/2">
               <motion.div
                 className="flex-col overflow-hidden rounded-xl border border-gray-200 bg-gray-100 sm:w-[384px] dark:border-gray-700 dark:bg-gray-800"
-                {...variants.content}
+                variants={variants.content}
               >
                 <Dialog.Title className="px-6 pt-5 text-lg font-semibold dark:text-gray-200">
                   Are you sure you want to log out?
